@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Textile Store{% endblock %}
+
+{% block content %}
+<!-- Hero Carousel Banner -->
+<section class="relative overflow-hidden bg-white">
+    <div class="hero-carousel relative" style="height: 500px;">
+        <!-- Carousel Slides -->
+        <div class="carousel-container relative w-full h-full">
+            <!-- Slide 1 -->
+            <div class="carousel-slide active absolute inset-0 transition-opacity duration-700">
+                <div class="relative w-full h-full">
+                    <img src="{{ url_for('static', filename='images/banner.jpg') }}" 
+                         alt="Fashion Collection" 
+                         class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent">
+                        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
+                            <div class="text-white max-w-2xl">
+                                <h2 class="text-5xl md:text-6xl font-bold mb-4">CLEARANCE SALE</h2>
+                                <p class="text-4xl md:text-5xl font-bold mb-6 text-yellow-400">UP TO 80% OFF*</p>
+                                <div class="bg-gray-800/80 inline-block px-6 py-3 rounded-lg mb-6">
+                                    <p class="text-lg font-semibold">PREMIUM BRANDS & MORE</p>
+                                </div>
+                                <a href="{{ url_for('products') }}" class="inline-block bg-white text-gray-900 px-10 py-4 rounded-full font-bold text-lg hover:bg-yellow-400 transition-all duration-300 transform hover:scale-105 shadow-xl">
+                                    SHOP NOW
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Hero Section -->
+<section class="relative overflow-hidden py-12 md:py-16">
+    <!-- Animated Background -->
+    <div class="absolute inset-0 bg-gradient-to-br from-primary via-secondary to-primary opacity-5"></div>
+    <div class="absolute inset-0" style="background-image: radial-gradient(circle at 20% 50%, rgba(201, 169, 110, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(201, 169, 110, 0.1) 0%, transparent 50%);"></div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="flex items-center justify-center">
+            <div class="text-center space-y-6 animate-fade-in max-w-4xl">
+                <div class="inline-block">
+                    <span class="text-accent font-semibold tracking-widest uppercase text-sm border border-accent/30 px-4 py-2 rounded-full bg-white/50 backdrop-blur-sm">Exclusive Collection</span>
+                </div>
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-primary leading-tight">
+                    Elevate Your
+                    <span class="block text-accent mt-2">Style</span>
+                </h1>
+                <p class="text-base md:text-lg text-gray-700 leading-relaxed max-w-2xl mx-auto">
+                    Discover our exclusive collection of premium textiles, crafted with precision and elegance. Where luxury meets comfort.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="{{ url_for('products') }}" class="group gold-gradient text-primary px-6 py-3 rounded-full font-semibold hover:shadow-2xl transition-all duration-500 transform hover:scale-105 flex items-center justify-center">
+                        <i class="fas fa-gem mr-2"></i>
+                        Explore Collection
+                        <i class="fas fa-arrow-right ml-2 transform group-hover:translate-x-2 transition-transform duration-300"></i>
+                    </a>
+                    <a href="#featured" class="bg-white text-primary px-6 py-3 rounded-full font-semibold hover:shadow-lg transition-all duration-300 border-2 border-primary/20 flex items-center justify-center">
+                        <i class="fas fa-star mr-2 text-accent"></i>
+                        View Featured
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<section id="featured" class="py-20 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Section Header -->
+        <div class="text-center mb-16 space-y-4">
+            <span class="text-accent font-semibold tracking-widest uppercase text-sm">Handpicked Selection</span>
+            <h2 class="text-4xl md:text-5xl font-serif font-bold text-primary">Featured Collection</h2>
+            <div class="elegant-divider w-24 mx-auto mt-6"></div>
+            <p class="text-gray-600 text-lg max-w-2xl mx-auto mt-4">Explore our curated selection of premium textiles, each piece carefully chosen for its exceptional quality and timeless elegance</p>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for product in products %}
+            <div class="group glass-effect rounded-2xl overflow-hidden flex flex-col hover-lift premium-shadow border border-white/50">
+                <a href="{{ url_for('amazon_product_page', product_id=product[0]) }}" 
+                   class="block relative">
+                    <div class="relative h-72 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+                        {% set images = product[6].split(',') if product[6] else ['tshirt.jpg'] %}
+                        <img src="{{ url_for('static', filename='images/' + images[0].strip()) }}" 
+                             class="w-full h-full object-cover hover:scale-110 transition-transform duration-300" 
+                             alt="{{ product[1] }}">
+                        <!-- Featured Badge -->
+                        <div class="absolute top-3 right-3 bg-accent/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
+                            <i class="fas fa-star mr-1"></i>Featured
+                        </div>
+                        {% if product[10] %}
+                        <span class="absolute top-3 left-3 bg-primary/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
+                            {{ product[10] }}
+                        </span>
+                        {% endif %}
+                        {% if images|length > 1 %}
+                        <span class="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm text-primary px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
+                            <i class="fas fa-images mr-1 text-accent"></i>{{ images|length }} Photos
+                        </span>
+                        {% endif %}
+                        <!-- Overlay on Hover -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </div>
+                </a>
+                
+                <div class="p-6 flex flex-col flex-grow space-y-3">
+                    <!-- Category Badge -->
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-accent uppercase tracking-wide">{{ product[2] }}{% if product[3] %} • {{ product[3] }}{% endif %}</span>
+                    </div>
+                    
+                    <!-- Product Name -->
+                    <h5 class="text-xl font-serif font-bold text-primary group-hover:text-accent transition-colors duration-300">{{ product[1] }}</h5>
+                    
+                    <!-- Description -->
+                    <p class="text-gray-600 text-sm leading-relaxed flex-grow line-clamp-2">{{ product[5] }}</p>
+                    
+                    <!-- Price and CTA -->
+                    <div class="flex items-center justify-between pt-4 border-t border-gray-100 mt-auto">
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Starting from</p>
+                            <span class="text-2xl font-bold text-primary">₹{{ "%.2f"|format(product[4]) }}</span>
+                        </div>
+                        {% if session.user_id %}
+                        <form method="POST" action="{{ url_for('add_to_cart') }}" class="inline">
+                            <input type="hidden" name="product_id" value="{{ product[0] }}">
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="gold-gradient text-primary px-4 py-2 rounded-full font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center text-sm whitespace-nowrap">
+                                <i class="fas fa-shopping-cart mr-1"></i> Add
+                            </button>
+                        </form>
+                        {% else %}
+                        <a href="{{ url_for('login') }}" class="gold-gradient text-primary px-4 py-2 rounded-full font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center text-sm whitespace-nowrap">
+                            <i class="fas fa-sign-in-alt mr-1"></i> Login
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-12">
+            <a href="{{ url_for('products') }}" class="inline-flex items-center gold-gradient text-primary px-8 py-4 rounded-full font-semibold hover:shadow-2xl transition-all duration-500 transform hover:scale-105 group">
+                View All Products
+                <i class="fas fa-arrow-right ml-2 transform group-hover:translate-x-2 transition-transform duration-300"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="py-20 relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center mb-16 space-y-4">
+            <span class="text-accent font-semibold tracking-widest uppercase text-sm">Collections</span>
+            <h2 class="text-4xl md:text-5xl font-serif font-bold text-primary">Shop by Category</h2>
+            <div class="elegant-divider w-24 mx-auto mt-6"></div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Men's Collection -->
+            <a href="{{ url_for('products', gender='Men') }}" 
+               class="group glass-effect rounded-2xl overflow-hidden hover-lift premium-shadow border border-white/50 relative transform transition-all duration-500">
+                <div class="relative h-80 overflow-hidden">
+                    <img src="{{ url_for('static', filename='images/men.jpg') }}" 
+                         alt="Men's Fashion" 
+                         class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700"
+                         style="object-position: center 20%;">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                    <div class="absolute top-4 right-4 bg-yellow-600 text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-lg">
+                        Trending
+                    </div>
+                    <div class="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                        <h3 class="text-3xl font-serif font-bold mb-2">Men's Collection</h3>
+                        <p class="text-white/90 text-sm mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">Sophisticated & Timeless Style</p>
+                        <div class="bg-white text-gray-900 font-semibold py-2.5 px-6 rounded-full inline-flex items-center transform group-hover:bg-yellow-400 transition-all duration-300 shadow-xl">
+                            Explore Now <i class="fas fa-arrow-right ml-2 transform group-hover:translate-x-2 transition-transform duration-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Women's Collection -->
+            <a href="{{ url_for('products', gender='Women') }}" 
+               class="group glass-effect rounded-2xl overflow-hidden hover-lift premium-shadow border border-white/50 relative transform transition-all duration-500">
+                <div class="relative h-80 overflow-hidden">
+                    <img src="{{ url_for('static', filename='images/women.jpg') }}" 
+                         alt="Women's Fashion" 
+                         class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700"
+                         style="object-position: center 20%;">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                    <div class="absolute top-4 right-4 bg-yellow-600 text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-lg">
+                        Bestseller
+                    </div>
+                    <div class="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                        <h3 class="text-3xl font-serif font-bold mb-2">Women's Collection</h3>
+                        <p class="text-white/90 text-sm mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">Elegant & Graceful Fashion</p>
+                        <div class="bg-white text-gray-900 font-semibold py-2.5 px-6 rounded-full inline-flex items-center transform group-hover:bg-yellow-400 transition-all duration-300 shadow-xl">
+                            Explore Now <i class="fas fa-arrow-right ml-2 transform group-hover:translate-x-2 transition-transform duration-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Kids Collection -->
+            <a href="{{ url_for('products', gender='Boys') }}" 
+               class="group glass-effect rounded-2xl overflow-hidden hover-lift premium-shadow border border-white/50 relative transform transition-all duration-500">
+                <div class="relative h-80 overflow-hidden">
+                    <img src="{{ url_for('static', filename='images/kids.jpg') }}" 
+                         alt="Kids Fashion" 
+                         class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700"
+                         style="object-position: center 20%;">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                    <div class="absolute top-4 right-4 bg-yellow-600 text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-lg">
+                        New
+                    </div>
+                    <div class="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                        <h3 class="text-3xl font-serif font-bold mb-2">Kids Collection</h3>
+                        <p class="text-white/90 text-sm mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">Playful & Comfortable Outfits</p>
+                        <div class="bg-white text-gray-900 font-semibold py-2.5 px-6 rounded-full inline-flex items-center transform group-hover:bg-yellow-400 transition-all duration-300 shadow-xl">
+                            Explore Now <i class="fas fa-arrow-right ml-2 transform group-hover:translate-x-2 transition-transform duration-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div class="text-center">
+                <div class="flex justify-center mb-4">
+                    <i class="fas fa-shipping-fast text-5xl text-primary"></i>
+                </div>
+                <h4 class="text-xl font-semibold mb-3 text-gray-900">Fast Shipping</h4>
+                <p class="text-gray-600">Quick and reliable delivery to your doorstep.</p>
+            </div>
+            <div class="text-center">
+                <div class="flex justify-center mb-4">
+                    <i class="fas fa-award text-5xl text-primary"></i>
+                </div>
+                <h4 class="text-xl font-semibold mb-3 text-gray-900">Quality Guarantee</h4>
+                <p class="text-gray-600">Quality materials and craftsmanship in every product.</p>
+            </div>
+            <div class="text-center">
+                <div class="flex justify-center mb-4">
+                    <i class="fas fa-headset text-5xl text-primary"></i>
+                </div>
+                <h4 class="text-xl font-semibold mb-3 text-gray-900">24/7 Support</h4>
+                <p class="text-gray-600">Round-the-clock customer service for your peace of mind.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

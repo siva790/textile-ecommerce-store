@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Order Confirmation - Textile Store{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-success">
+                <div class="card-header bg-success text-white text-center">
+                    <h3><i class="fas fa-check-circle me-2"></i>Order Confirmed!</h3>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-shopping-bag fa-3x text-success mb-3"></i>
+                        <h4>Thank you for your order!</h4>
+                        <p class="text-muted">Your order has been placed successfully</p>
+                    </div>
+                    
+                    <!-- Order Details -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Order Information</h5>
+                            <p><strong>Order ID:</strong> #{{ order_id }}</p>
+                            <p><strong>Order Date:</strong> {{ order_details[0][2] }}</p>
+                            <p><strong>Payment Method:</strong> {{ order_details[0][4] }}</p>
+                            <p><strong>Total Amount:</strong> ₹{{ "%.2f"|format(order_details[0][3]|float) }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Shipping Information</h5>
+                            <p><strong>Address:</strong> {{ order_details[0][6] }}</p>
+                            <p><strong>Phone:</strong> {{ order_details[0][7] }}</p>
+                            <p><strong>Status:</strong> 
+                                <span class="badge bg-warning">{{ order_details[0][8] }}</span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Order Items -->
+                    <h5>Order Items</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order_details %}
+                                <tr>
+                                    <td>{{ item[9] }}</td>
+                                    <td>{{ item[10] }}</td>
+                                    <td>₹{{ "%.2f"|format(item[11]|float) }}</td>
+                                    <td>₹{{ "%.2f"|format(item[10]|float * item[11]|float) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-success">
+                                    <th colspan="3">Total Amount:</th>
+                                    <th>₹{{ "%.2f"|format(order_details[0][3]|float) }}</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    
+                    <!-- Payment Information -->
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle me-2"></i>Payment Information</h6>
+                        <p class="mb-0">
+                            {% if order_details[0][4] == 'Cash on Delivery' %}
+                                You will pay <strong>₹{{ "%.2f"|format(order_details[0][3]|float) }}</strong> when your order is delivered.
+                            {% else %}
+                                Your payment of <strong>₹{{ "%.2f"|format(order_details[0][3]|float) }}</strong> will be processed via {{ order_details[0][4] }}.
+                            {% endif %}
+                        </p>
+                    </div>
+                    
+                    <!-- Next Steps -->
+                    <div class="alert alert-light">
+                        <h6><i class="fas fa-clock me-2"></i>What's Next?</h6>
+                        <ul class="mb-0">
+                            <li>You will receive an order confirmation email shortly</li>
+                            <li>We will process your order within 24 hours</li>
+                            <li>You will receive tracking information once shipped</li>
+                            <li>Expected delivery: 3-5 business days</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center mb-3">
+                        <a href="{{ url_for('customer_order_details', order_id=order_id) }}" class="btn btn-warning btn-lg">
+                            <i class="fas fa-shipping-fast me-2"></i>Track This Order
+                        </a>
+                        <a href="{{ url_for('download_bill', order_id=order_id) }}" class="btn btn-success btn-lg">
+                            <i class="fas fa-download me-2"></i>Download Bill
+                        </a>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        <a href="{{ url_for('orders') }}" class="btn btn-primary">
+                            <i class="fas fa-box me-2"></i>View All My Orders
+                        </a>
+                        <a href="{{ url_for('products') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-shopping-bag me-2"></i>Continue Shopping
+                        </a>
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-home me-2"></i>Back to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Animation -->
+<script>
+// Add success animation
+document.addEventListener('DOMContentLoaded', function() {
+    const card = document.querySelector('.card');
+    card.style.transform = 'scale(0.9)';
+    card.style.opacity = '0';
+    
+    setTimeout(() => {
+        card.style.transition = 'all 0.5s ease';
+        card.style.transform = 'scale(1)';
+        card.style.opacity = '1';
+    }, 100);
+    
+    // Confetti effect (simple version)
+    setTimeout(() => {
+        for (let i = 0; i < 50; i++) {
+            createConfetti();
+        }
+    }, 500);
+});
+
+function createConfetti() {
+    const confetti = document.createElement('div');
+    confetti.style.position = 'fixed';
+    confetti.style.width = '10px';
+    confetti.style.height = '10px';
+    confetti.style.backgroundColor = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57'][Math.floor(Math.random() * 5)];
+    confetti.style.left = Math.random() * 100 + 'vw';
+    confetti.style.top = '-10px';
+    confetti.style.zIndex = '9999';
+    confetti.style.borderRadius = '50%';
+    confetti.style.pointerEvents = 'none';
+    
+    document.body.appendChild(confetti);
+    
+    const animation = confetti.animate([
+        { transform: 'translateY(0px) rotate(0deg)', opacity: 1 },
+        { transform: `translateY(${window.innerHeight + 100}px) rotate(720deg)`, opacity: 0 }
+    ], {
+        duration: 3000,
+        easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+    });
+    
+    animation.onfinish = () => confetti.remove();
+}
+</script>
+{% endblock %}

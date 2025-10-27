@@ -1,0 +1,406 @@
+/* ========================================
+   AMAZON-STYLE PRODUCT PAGE CSS
+   Modern, Clean, Professional Design
+   ======================================== */
+
+/* ============ MAIN IMAGE CONTAINER ============ */
+.main-image-container {
+    position: relative;
+    width: 100%;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    padding: 20px;
+}
+
+/* Main Product Image */
+.main-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    cursor: zoom-in;
+    transition: transform 0.3s ease;
+}
+
+/* ============ ZOOM FUNCTIONALITY ============ */
+.zoom-container {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Zoom Lens (magnifying glass effect) */
+.zoom-lens {
+    position: absolute;
+    border: 2px solid #f39c12;
+    width: 150px;
+    height: 150px;
+    display: none;
+    pointer-events: none;
+    background-color: rgba(255, 255, 255, 0.3);
+    cursor: none;
+}
+
+/* Zoomed Result Container */
+.zoom-result {
+    position: absolute;
+    top: 0;
+    left: 110%;
+    width: 400px;
+    height: 400px;
+    border: 1px solid #ddd;
+    background-color: white;
+    background-repeat: no-repeat;
+    display: none;
+    z-index: 1000;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Show zoom on hover (desktop only) */
+@media (min-width: 992px) {
+    .zoom-container:hover .zoom-lens {
+        display: block;
+    }
+    
+    .zoom-container:hover .zoom-result {
+        display: block;
+    }
+}
+
+/* ============ THUMBNAIL IMAGES ============ */
+.thumbnail-container {
+    margin-top: 15px;
+}
+
+/* Individual Thumbnail */
+.thumbnail {
+    width: 100%;
+    height: 80px;
+    object-fit: cover;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: 0.7;
+}
+
+/* Thumbnail Hover Effect */
+.thumbnail:hover {
+    border-color: #f39c12;
+    opacity: 1;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Active Thumbnail (currently selected) */
+.thumbnail.active {
+    border-color: #f39c12;
+    opacity: 1;
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #f39c12;
+}
+
+/* ============ PRODUCT DETAILS ============ */
+.product-details {
+    padding: 20px;
+}
+
+/* Product Title */
+.product-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #232f3e;
+    margin-bottom: 15px;
+    line-height: 1.3;
+}
+
+/* Star Rating */
+.product-rating .stars {
+    font-size: 18px;
+}
+
+.rating-count {
+    font-size: 14px;
+}
+
+/* ============ PRICE SECTION ============ */
+.product-price {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.current-price {
+    font-size: 32px;
+    font-weight: 700;
+    color: #b12704;
+}
+
+.original-price {
+    font-size: 18px;
+    color: #565959;
+}
+
+/* ============ PRODUCT DESCRIPTION ============ */
+.product-description ul {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+.product-description li {
+    margin-bottom: 8px;
+    color: #0f1111;
+    line-height: 1.6;
+}
+
+/* ============ QUANTITY SELECTOR ============ */
+.quantity-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 200px;
+}
+
+.quantity-selector input {
+    text-align: center;
+    width: 70px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.quantity-selector button {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* ============ STOCK STATUS ============ */
+.stock-status {
+    padding: 10px 0;
+}
+
+/* ============ ACTION BUTTONS ============ */
+.action-buttons .btn {
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 12px 24px;
+    transition: all 0.3s ease;
+}
+
+.action-buttons .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* ============ ADDITIONAL INFO ============ */
+.additional-info {
+    background-color: #f7f8fa;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #f39c12;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #0f1111;
+}
+
+.info-item:last-child {
+    margin-bottom: 0;
+}
+
+.info-item i {
+    font-size: 18px;
+    min-width: 24px;
+}
+
+/* ============ RELATED PRODUCTS ============ */
+.related-products {
+    padding: 40px 0;
+    border-top: 1px solid #e0e0e0;
+}
+
+.related-products h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #232f3e;
+}
+
+/* Product Card in Related Products */
+.product-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.product-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    transform: translateY(-4px);
+    border-color: #f39c12;
+}
+
+.product-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.product-card .card-body {
+    padding: 15px;
+}
+
+.product-card .card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #232f3e;
+    margin-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.product-card .card-text {
+    font-size: 18px;
+    color: #b12704;
+    margin-bottom: 8px;
+}
+
+.stars-small {
+    font-size: 12px;
+}
+
+/* ============ CAROUSEL CUSTOMIZATION ============ */
+#relatedProductsCarousel .carousel-control-prev,
+#relatedProductsCarousel .carousel-control-next {
+    width: 5%;
+    opacity: 0.8;
+}
+
+#relatedProductsCarousel .carousel-control-prev:hover,
+#relatedProductsCarousel .carousel-control-next:hover {
+    opacity: 1;
+}
+
+/* ============ RESPONSIVE DESIGN ============ */
+
+/* Tablets and Small Laptops */
+@media (max-width: 991px) {
+    .zoom-result {
+        display: none !important;
+    }
+    
+    .product-title {
+        font-size: 24px;
+    }
+    
+    .current-price {
+        font-size: 28px;
+    }
+    
+    .related-products .col-md-3 {
+        margin-bottom: 20px;
+    }
+}
+
+/* Mobile Devices */
+@media (max-width: 767px) {
+    .main-image-container {
+        padding: 10px;
+    }
+    
+    .thumbnail {
+        height: 60px;
+    }
+    
+    .product-title {
+        font-size: 20px;
+    }
+    
+    .current-price {
+        font-size: 24px;
+    }
+    
+    .action-buttons .btn {
+        font-size: 14px;
+        padding: 10px 20px;
+    }
+    
+    .quantity-selector input {
+        width: 60px;
+    }
+}
+
+/* Small Mobile */
+@media (max-width: 576px) {
+    .thumbnail {
+        height: 50px;
+    }
+}
+
+/* ============ ANIMATIONS ============ */
+
+/* Fade In Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.main-image {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Pulse Animation for Buttons */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(243, 156, 18, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(243, 156, 18, 0);
+    }
+}
+
+.action-buttons .btn-warning:focus {
+    animation: pulse 1s ease-in-out;
+}
+
+/* ============ BOOTSTRAP CAROUSEL OVERRIDE ============ */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    border-radius: 50%;
+}
+
+/* ============ ACCESSIBILITY ============ */
+.thumbnail:focus,
+.quantity-selector button:focus {
+    outline: 2px solid #f39c12;
+    outline-offset: 2px;
+}
+
+/* ============ PRINT STYLES ============ */
+@media print {
+    .thumbnail-container,
+    .action-buttons,
+    .related-products,
+    .zoom-result {
+        display: none;
+    }
+}
+
+
+

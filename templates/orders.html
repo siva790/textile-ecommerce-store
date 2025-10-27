@@ -1,0 +1,383 @@
+{% extends "base.html" %}
+
+{% block title %}My Orders - LUXE TEXTILE{% endblock %}
+
+{% block content %}
+<!-- Luxurious Orders Page -->
+<div class="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Page Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+            <div>
+                <h1 class="text-4xl font-serif font-bold text-gray-900 mb-2 flex items-center">
+                    <i class="fas fa-shopping-bag mr-3 text-yellow-600"></i>
+                    My Orders
+                </h1>
+                <p class="text-gray-600">Track and manage your orders</p>
+            </div>
+            <a href="{{ url_for('products') }}" 
+               class="inline-flex items-center bg-gray-900 hover:bg-yellow-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg">
+                <i class="fas fa-shopping-bag mr-2"></i>
+                Continue Shopping
+            </a>
+        </div>
+        
+        <!-- Quick Track Order Search -->
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 mb-8">
+            <div class="flex flex-col md:flex-row gap-4 items-center">
+                <div class="flex-1 w-full">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-search mr-2"></i>Quick Track Order
+                    </label>
+                    <div class="flex gap-2">
+                        <input type="number" 
+                               id="trackOrderId" 
+                               placeholder="Enter Order ID (e.g., 1, 2, 3...)"
+                               class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:ring focus:ring-yellow-200 transition-all"
+                               min="1">
+                        <button onclick="quickTrackOrder()" 
+                                class="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl">
+                            <i class="fas fa-location-arrow mr-2"></i>Track Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filter Buttons -->
+        {% if orders %}
+        <div class="flex flex-wrap gap-2 mb-6">
+            <button onclick="filterOrders('all')" 
+                    class="filter-btn active px-4 py-2 rounded-xl font-semibold transition-all duration-200 bg-gray-900 text-white hover:bg-yellow-600">
+                <i class="fas fa-list mr-2"></i>All Orders ({{ orders|length }})
+            </button>
+            <button onclick="filterOrders('processing')" 
+                    class="filter-btn px-4 py-2 rounded-xl font-semibold transition-all duration-200 bg-yellow-50 text-yellow-700 hover:bg-yellow-100">
+                <i class="fas fa-clock mr-2"></i>Processing
+            </button>
+            <button onclick="filterOrders('shipped')" 
+                    class="filter-btn px-4 py-2 rounded-xl font-semibold transition-all duration-200 bg-purple-50 text-purple-700 hover:bg-purple-100">
+                <i class="fas fa-truck mr-2"></i>Shipped
+            </button>
+            <button onclick="filterOrders('delivered')" 
+                    class="filter-btn px-4 py-2 rounded-xl font-semibold transition-all duration-200 bg-green-50 text-green-700 hover:bg-green-100">
+                <i class="fas fa-check-circle mr-2"></i>Delivered
+            </button>
+            <button onclick="filterOrders('cancelled')" 
+                    class="filter-btn px-4 py-2 rounded-xl font-semibold transition-all duration-200 bg-red-50 text-red-700 hover:bg-red-100">
+                <i class="fas fa-times-circle mr-2"></i>Cancelled
+            </button>
+        </div>
+        {% endif %}
+        
+        {% if orders %}
+        <!-- Orders Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for order in orders %}
+            <div class="order-card bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105" data-status="{{ order[4] }}" data-order-id="{{ order[0] }}">
+                <!-- Card Header -->
+                <div class="bg-gradient-to-r from-gray-900 to-gray-800 px-6 py-4 flex justify-between items-center">
+                    <h3 class="text-white font-bold text-lg">Order #{{ order[0] }}</h3>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold
+                        {% if order[4] == 'processing' %}bg-yellow-400 text-yellow-900
+                        {% elif order[4] == 'confirmed' %}bg-blue-400 text-blue-900
+                        {% elif order[4] == 'shipped' %}bg-purple-400 text-purple-900
+                        {% elif order[4] == 'out_for_delivery' %}bg-indigo-400 text-indigo-900
+                        {% elif order[4] == 'delivered' %}bg-green-400 text-green-900
+                        {% elif order[4] == 'cancelled' %}bg-red-400 text-red-900
+                        {% else %}bg-gray-400 text-gray-900{% endif %}">
+                        {{ order[4].replace('_', ' ').title() }}
+                    </span>
+                </div>
+                
+                <!-- Card Body -->
+                <div class="p-6 space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-xs uppercase tracking-wide text-gray-500 mb-1">Order Date</p>
+                            <p class="text-sm font-semibold text-gray-900">{{ order[1] }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs uppercase tracking-wide text-gray-500 mb-1">Total Amount</p>
+                            <p class="text-lg font-bold text-green-600">₹{{ "%.0f"|format(order[2]) }}</p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <p class="text-xs uppercase tracking-wide text-gray-500 mb-1">Payment Method</p>
+                        <div class="flex items-center text-sm font-semibold text-gray-900">
+                            {% if order[3] == 'GPay' %}
+                                <i class="fab fa-google-pay text-blue-600 mr-2"></i>Google Pay
+                            {% elif order[3] == 'PhonePe' %}
+                                <i class="fas fa-mobile-alt text-purple-600 mr-2"></i>PhonePe
+                            {% elif order[3] == 'Paytm' %}
+                                <i class="fas fa-wallet text-blue-500 mr-2"></i>Paytm
+                            {% elif order[3] == 'UPI' %}
+                                <i class="fas fa-qrcode text-green-600 mr-2"></i>UPI
+                            {% elif order[3] == 'Card' %}
+                                <i class="fas fa-credit-card text-gray-700 mr-2"></i>Card
+                            {% elif order[3] == 'Net Banking' %}
+                                <i class="fas fa-university text-blue-600 mr-2"></i>Net Banking
+                            {% elif order[3] == 'Cash on Delivery' %}
+                                <i class="fas fa-money-bill-wave text-green-600 mr-2"></i>COD
+                            {% elif order[3] == 'EMI' %}
+                                <i class="fas fa-calendar-alt text-indigo-600 mr-2"></i>EMI
+                            {% else %}
+                                {{ order[3] }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Order Status Progress Bar -->
+                    <div>
+                        <p class="text-xs uppercase tracking-wide text-gray-500 mb-2">Order Progress</p>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            {% if order[4] == 'processing' %}
+                                <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 20%"></div>
+                            {% elif order[4] == 'confirmed' %}
+                                <div class="bg-blue-500 h-2.5 rounded-full" style="width: 40%"></div>
+                            {% elif order[4] == 'shipped' %}
+                                <div class="bg-purple-500 h-2.5 rounded-full" style="width: 60%"></div>
+                            {% elif order[4] == 'out_for_delivery' %}
+                                <div class="bg-indigo-500 h-2.5 rounded-full" style="width: 80%"></div>
+                            {% elif order[4] == 'delivered' %}
+                                <div class="bg-green-500 h-2.5 rounded-full" style="width: 100%"></div>
+                            {% elif order[4] == 'cancelled' %}
+                                <div class="bg-red-500 h-2.5 rounded-full" style="width: 100%"></div>
+                            {% else %}
+                                <div class="bg-gray-400 h-2.5 rounded-full" style="width: 0%"></div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card Footer - Action Buttons -->
+                <div class="px-6 pb-6 space-y-2">
+                    <a href="{{ url_for('customer_order_details', order_id=order[0]) }}" 
+                       class="block w-full bg-gray-900 hover:bg-yellow-600 text-white text-center px-4 py-3 rounded-xl font-bold transition-all duration-300">
+                        <i class="fas fa-eye mr-2"></i>Track Order
+                    </a>
+                    <div class="grid grid-cols-2 gap-2">
+                        <a href="{{ url_for('download_bill', order_id=order[0]) }}" 
+                           class="bg-green-50 hover:bg-green-100 text-green-700 text-center px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm">
+                            <i class="fas fa-download mr-1"></i>Invoice
+                        </a>
+                        {% if order[4] in ['processing', 'confirmed'] %}
+                        <button onclick="cancelOrder({{ order[0] }})"
+                                class="bg-red-50 hover:bg-red-100 text-red-700 px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm">
+                            <i class="fas fa-times mr-1"></i>Cancel
+                        </button>
+                        {% elif order[4] == 'delivered' %}
+                        <button onclick="returnOrder({{ order[0] }})"
+                                class="bg-blue-50 hover:bg-blue-100 text-blue-700 px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm">
+                            <i class="fas fa-undo mr-1"></i>Return
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-20">
+            <div class="mb-8">
+                <div class="inline-flex items-center justify-center w-32 h-32 bg-gray-100 rounded-full mb-6">
+                    <i class="fas fa-shopping-bag text-6xl text-gray-400"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-900 mb-3">No Orders Yet</h2>
+                <p class="text-gray-600 text-lg mb-8">You haven't placed any orders yet. Start shopping now!</p>
+            </div>
+            
+            <a href="{{ url_for('products') }}" 
+               class="inline-flex items-center bg-gray-900 hover:bg-yellow-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                <i class="fas fa-shopping-bag mr-3"></i>
+                Start Shopping
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Quick Track Order by ID
+function quickTrackOrder() {
+    const orderId = document.getElementById('trackOrderId').value;
+    
+    if (!orderId || orderId < 1) {
+        alert('⚠️ Please enter a valid Order ID');
+        return;
+    }
+    
+    // Check if order exists
+    const orderCard = document.querySelector(`[data-order-id="${orderId}"]`);
+    
+    if (orderCard) {
+        // Scroll to the order and highlight it
+        orderCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Add highlight effect
+        orderCard.style.boxShadow = '0 0 30px rgba(251, 191, 36, 0.8)';
+        orderCard.style.transform = 'scale(1.05)';
+        
+        setTimeout(() => {
+            orderCard.style.boxShadow = '';
+            orderCard.style.transform = '';
+        }, 2000);
+    } else {
+        if (confirm(`Order #${orderId} not found in your orders.\n\nWould you like to view order details page?`)) {
+            window.location.href = `/customer_order_details/${orderId}`;
+        }
+    }
+}
+
+// Allow Enter key to track order
+document.addEventListener('DOMContentLoaded', function() {
+    const trackInput = document.getElementById('trackOrderId');
+    if (trackInput) {
+        trackInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                quickTrackOrder();
+            }
+        });
+    }
+});
+
+// Filter Orders by Status
+function filterOrders(status) {
+    const orderCards = document.querySelectorAll('.order-card');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    
+    // Update active button
+    filterBtns.forEach(btn => {
+        btn.classList.remove('active', 'bg-gray-900', 'text-white');
+        if (status === 'all') {
+            btn.classList.add('bg-gray-50', 'text-gray-700');
+        }
+    });
+    
+    event.target.classList.add('active');
+    if (status === 'all') {
+        event.target.classList.remove('bg-gray-50', 'text-gray-700');
+        event.target.classList.add('bg-gray-900', 'text-white');
+    }
+    
+    // Filter cards
+    let visibleCount = 0;
+    orderCards.forEach(card => {
+        const cardStatus = card.getAttribute('data-status');
+        
+        if (status === 'all' || cardStatus === status) {
+            card.style.display = 'block';
+            visibleCount++;
+            
+            // Animate in
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 50);
+        } else {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                card.style.display = 'none';
+            }, 300);
+        }
+    });
+    
+    // Show message if no orders match filter
+    const ordersGrid = document.querySelector('.grid.grid-cols-1');
+    let noResultsMsg = document.getElementById('noResultsMessage');
+    
+    if (visibleCount === 0) {
+        if (!noResultsMsg) {
+            noResultsMsg = document.createElement('div');
+            noResultsMsg.id = 'noResultsMessage';
+            noResultsMsg.className = 'col-span-full text-center py-12';
+            noResultsMsg.innerHTML = `
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-4">
+                    <i class="fas fa-search text-3xl text-gray-400"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">No orders found</h3>
+                <p class="text-gray-600">There are no orders with "${status}" status.</p>
+            `;
+            ordersGrid.appendChild(noResultsMsg);
+        }
+    } else {
+        if (noResultsMsg) {
+            noResultsMsg.remove();
+        }
+    }
+}
+
+// Cancel Order Function
+function cancelOrder(orderId) {
+    if (confirm('Are you sure you want to cancel this order?\n\nThis action cannot be undone.')) {
+        fetch(`/cancel_order/${orderId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✓ Order cancelled successfully!');
+                location.reload();
+            } else {
+                alert('✗ Error: ' + (data.message || 'Failed to cancel order'));
+            }
+        })
+        .catch(error => {
+            alert('✗ An error occurred while cancelling the order');
+            console.error('Error:', error);
+        });
+    }
+}
+
+// Return Order Function
+function returnOrder(orderId) {
+    const reason = prompt('Please enter the reason for return:\n\n(e.g., Wrong size, Damaged product, Not as described)');
+    
+    if (reason && reason.trim()) {
+        fetch(`/return_order/${orderId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ reason: reason.trim() })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✓ Return request submitted successfully!\n\nOur team will review your request and contact you soon.');
+                location.reload();
+            } else {
+                alert('✗ Error: ' + (data.message || 'Failed to submit return request'));
+            }
+        })
+        .catch(error => {
+            alert('✗ An error occurred while submitting the return request');
+            console.error('Error:', error);
+        });
+    } else if (reason !== null) {
+        alert('⚠️ Please provide a reason for the return');
+    }
+}
+
+// Add animation to order cards on page load
+window.addEventListener('load', function() {
+    const cards = document.querySelectorAll('.order-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'all 0.5s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

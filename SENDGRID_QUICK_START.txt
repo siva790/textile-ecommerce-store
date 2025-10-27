@@ -1,0 +1,84 @@
+========================================
+📧 SendGrid Quick Start - 5 Steps
+========================================
+
+✅ STEP 1: Sign Up (2 min)
+--------------------------
+Go to: https://signup.sendgrid.com/
+- Create FREE account
+- Verify your email
+
+
+✅ STEP 2: Get API Key (2 min)
+--------------------------
+1. Login to SendGrid
+2. Go to: Settings → API Keys
+3. Click "Create API Key"
+4. Name: Textile-Store
+5. Permission: Full Access
+6. Click "Create & View"
+7. COPY the key (starts with SG.xxx...)
+
+
+✅ STEP 3: Verify Sender (2 min)
+--------------------------
+1. Go to: Settings → Sender Authentication
+2. Click "Verify a Single Sender"
+3. Fill in:
+   - From Name: Textile Store
+   - From Email: sivakathir785@gmail.com
+   - Your address details
+4. Click verification link in email
+
+
+✅ STEP 4: Configure .env (1 min)
+--------------------------
+Open your .env file and add:
+
+SENDGRID_API_KEY=paste_your_api_key_here
+SENDGRID_FROM_EMAIL=sivakathir785@gmail.com
+SENDGRID_FROM_NAME=Textile Store
+SECRET_KEY=your-secret-key-change-this-2002
+
+
+✅ STEP 5: Install & Run (1 min)
+--------------------------
+Run these commands:
+
+pip install sendgrid
+
+Then restart Flask:
+Ctrl+C (stop Flask)
+python app.py (start Flask)
+
+
+✅ TEST IT:
+--------------------------
+1. Go to: http://127.0.0.1:5000
+2. Register with ANY email
+3. Check that email's inbox
+4. You'll receive professional OTP email!
+
+
+========================================
+💡 Benefits:
+========================================
+✅ FREE - 100 emails/day forever
+✅ Works for ALL your websites
+✅ Professional email delivery
+✅ No App Password hassles
+✅ Better than Gmail SMTP
+✅ Beautiful HTML emails
+
+
+========================================
+📊 Your Free Limits:
+========================================
+100 emails/day = 3,000/month
+Perfect for 50 customers/day!
+
+
+========================================
+Need help? Check: SENDGRID_SETUP_GUIDE.md
+========================================
+

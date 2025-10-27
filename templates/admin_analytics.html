@@ -1,0 +1,371 @@
+{% extends "base.html" %}
+
+{% block title %}Sales Analytics - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <h2 class="text-3xl font-bold text-gray-900 flex items-center">
+            <i class="fas fa-chart-line mr-3 text-primary"></i>Sales Analytics
+        </h2>
+        <div class="flex flex-wrap gap-3">
+            <a href="{{ url_for('admin') }}" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors flex items-center">
+                <i class="fas fa-box mr-2"></i>Manage Products
+            </a>
+            <a href="{{ url_for('admin_orders') }}" class="bg-success text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors flex items-center">
+                <i class="fas fa-shopping-cart mr-2"></i>Manage Orders
+            </a>
+            <a href="{{ url_for('index') }}" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors flex items-center">
+                <i class="fas fa-home mr-2"></i>Back to Store
+            </a>
+        </div>
+    </div>
+
+    <!-- Time Period Filter -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div class="flex items-center justify-between flex-wrap gap-4">
+            <h3 class="text-lg font-semibold text-gray-900">
+                <i class="fas fa-filter mr-2"></i>Time Period: <span class="text-primary">{{ period_label }}</span>
+            </h3>
+            <div class="flex gap-2 flex-wrap">
+                <a href="{{ url_for('admin_analytics', period='week') }}" 
+                   class="px-4 py-2 rounded-lg font-semibold transition-all {% if period == 'week' %}bg-primary text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                    <i class="fas fa-calendar-week mr-1"></i>Last Week
+                </a>
+                <a href="{{ url_for('admin_analytics', period='month') }}" 
+                   class="px-4 py-2 rounded-lg font-semibold transition-all {% if period == 'month' %}bg-primary text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                    <i class="fas fa-calendar-alt mr-1"></i>Last Month
+                </a>
+                <a href="{{ url_for('admin_analytics', period='year') }}" 
+                   class="px-4 py-2 rounded-lg font-semibold transition-all {% if period == 'year' %}bg-primary text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                    <i class="fas fa-calendar mr-1"></i>Last Year
+                </a>
+                <a href="{{ url_for('admin_analytics', period='all') }}" 
+                   class="px-4 py-2 rounded-lg font-semibold transition-all {% if period == 'all' %}bg-primary text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                    <i class="fas fa-infinity mr-1"></i>All Time
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Metrics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Revenue -->
+        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-lg p-6 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-green-100 text-sm font-semibold uppercase">Total Revenue</p>
+                    <h3 class="text-3xl font-bold mt-2">₹{{ "%.2f"|format(total_revenue) }}</h3>
+                    <p class="text-green-100 text-xs mt-2">{{ period_label }}</p>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded-full p-4">
+                    <i class="fas fa-rupee-sign text-3xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Orders -->
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-blue-100 text-sm font-semibold uppercase">Total Orders</p>
+                    <h3 class="text-3xl font-bold mt-2">{{ total_orders }}</h3>
+                    <p class="text-blue-100 text-xs mt-2">{{ period_label }}</p>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded-full p-4">
+                    <i class="fas fa-shopping-cart text-3xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Sold -->
+        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-purple-100 text-sm font-semibold uppercase">Products Sold</p>
+                    <h3 class="text-3xl font-bold mt-2">{{ total_products_sold }}</h3>
+                    <p class="text-purple-100 text-xs mt-2">{{ period_label }}</p>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded-full p-4">
+                    <i class="fas fa-box text-3xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Average Order Value -->
+        <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg shadow-lg p-6 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-yellow-100 text-sm font-semibold uppercase">Avg Order Value</p>
+                    <h3 class="text-3xl font-bold mt-2">₹{{ "%.2f"|format(avg_order_value) }}</h3>
+                    <p class="text-yellow-100 text-xs mt-2">Per Order</p>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded-full p-4">
+                    <i class="fas fa-chart-bar text-3xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Sales Trend Chart -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <i class="fas fa-chart-line mr-2 text-primary"></i>Sales Trend
+            </h3>
+            <canvas id="salesChart" height="250"></canvas>
+        </div>
+
+        <!-- Order Status Distribution -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <i class="fas fa-pie-chart mr-2 text-primary"></i>Order Status Distribution
+            </h3>
+            <canvas id="statusChart" height="250"></canvas>
+        </div>
+    </div>
+
+    <!-- Revenue by Category -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <i class="fas fa-tags mr-2 text-primary"></i>Revenue by Category
+        </h3>
+        <canvas id="categoryChart" height="100"></canvas>
+    </div>
+
+    <!-- Tables Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Top Selling Products -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="bg-gradient-to-r from-gray-900 to-gray-800 px-6 py-4">
+                <h3 class="text-lg font-semibold text-white flex items-center">
+                    <i class="fas fa-trophy mr-2 text-yellow-400"></i>Top Selling Products
+                </h3>
+            </div>
+            <div class="p-6">
+                {% if top_products %}
+                <div class="space-y-4">
+                    {% for product in top_products %}
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div class="flex-1">
+                            <p class="font-semibold text-gray-900">{{ loop.index }}. {{ product[0] }}</p>
+                            <p class="text-sm text-gray-600">{{ product[1] }} units sold</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-green-600">₹{{ "%.2f"|format(product[2]) }}</p>
+                            <p class="text-xs text-gray-500">Revenue</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-gray-500 text-center py-8">No sales data available</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="bg-gradient-to-r from-gray-900 to-gray-800 px-6 py-4">
+                <h3 class="text-lg font-semibold text-white flex items-center">
+                    <i class="fas fa-clock mr-2 text-blue-400"></i>Recent Orders
+                </h3>
+            </div>
+            <div class="p-6">
+                {% if recent_orders %}
+                <div class="space-y-3">
+                    {% for order in recent_orders %}
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div class="flex-1">
+                            <p class="font-semibold text-gray-900">#{{ order[0] }} - {{ order[1] }}</p>
+                            <p class="text-xs text-gray-500">{{ order[4] }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-green-600">₹{{ "%.2f"|format(order[2]) }}</p>
+                            <span class="text-xs px-2 py-1 rounded-full {% if order[3] == 'delivered' %}bg-green-100 text-green-800{% elif order[3] == 'shipped' %}bg-blue-100 text-blue-800{% elif order[3] == 'cancelled' %}bg-red-100 text-red-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                {{ order[3]|replace('_', ' ')|title }}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-gray-500 text-center py-8">No recent orders</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Status Stats Table -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="bg-gradient-to-r from-gray-900 to-gray-800 px-6 py-4">
+            <h3 class="text-lg font-semibold text-white flex items-center">
+                <i class="fas fa-list mr-2 text-green-400"></i>Order Statistics by Status
+            </h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order Count</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Revenue</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">% of Total Orders</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for status in status_stats %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4">
+                            <span class="px-3 py-1 rounded-full text-sm font-semibold 
+                                {% if status[0] == 'delivered' %}bg-green-100 text-green-800
+                                {% elif status[0] == 'shipped' %}bg-blue-100 text-blue-800
+                                {% elif status[0] == 'cancelled' %}bg-red-100 text-red-800
+                                {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                {{ status[0]|replace('_', ' ')|title }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm font-bold text-gray-900">{{ status[1] }}</td>
+                        <td class="px-6 py-4 text-sm font-bold text-green-600">₹{{ "%.2f"|format(status[2] or 0) }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">{{ "%.1f"|format((status[1] / total_orders * 100) if total_orders > 0 else 0) }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+<script>
+// Sales Trend Chart
+const salesCtx = document.getElementById('salesChart').getContext('2d');
+const salesChart = new Chart(salesCtx, {
+    type: 'line',
+    data: {
+        labels: [
+            {% for sale in daily_sales %}
+                '{{ sale[0] }}',
+            {% endfor %}
+        ],
+        datasets: [{
+            label: 'Revenue (₹)',
+            data: [
+                {% for sale in daily_sales %}
+                    {{ sale[2] or 0 }},
+                {% endfor %}
+            ],
+            borderColor: 'rgb(16, 185, 129)',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return '₹' + value.toFixed(0);
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Order Status Chart
+const statusCtx = document.getElementById('statusChart').getContext('2d');
+const statusChart = new Chart(statusCtx, {
+    type: 'doughnut',
+    data: {
+        labels: [
+            {% for status in status_stats %}
+                '{{ status[0]|replace("_", " ")|title }}',
+            {% endfor %}
+        ],
+        datasets: [{
+            data: [
+                {% for status in status_stats %}
+                    {{ status[1] }},
+                {% endfor %}
+            ],
+            backgroundColor: [
+                'rgb(16, 185, 129)',  // green
+                'rgb(59, 130, 246)',  // blue
+                'rgb(239, 68, 68)',   // red
+                'rgb(245, 158, 11)',  // yellow
+                'rgb(168, 85, 247)',  // purple
+                'rgb(107, 114, 128)'  // gray
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Category Revenue Chart
+const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+const categoryChart = new Chart(categoryCtx, {
+    type: 'bar',
+    data: {
+        labels: [
+            {% for cat in category_revenue %}
+                '{{ cat[0] }}',
+            {% endfor %}
+        ],
+        datasets: [{
+            label: 'Revenue (₹)',
+            data: [
+                {% for cat in category_revenue %}
+                    {{ cat[1] }},
+                {% endfor %}
+            ],
+            backgroundColor: 'rgba(16, 185, 129, 0.8)',
+            borderColor: 'rgb(16, 185, 129)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return '₹' + value.toFixed(0);
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}
+

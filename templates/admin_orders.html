@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Order Management{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+            <h2 class="text-3xl font-bold text-gray-900 flex items-center">
+                <i class="fas fa-shopping-cart mr-3 text-primary"></i>Order Management
+            </h2>
+            <div class="flex flex-col sm:flex-row gap-3 mt-4 sm:mt-0">
+                <a href="{{ url_for('admin_analytics') }}" class="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-6 py-2 rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all shadow-lg flex items-center justify-center">
+                    <i class="fas fa-chart-line mr-2"></i>Analytics
+                </a>
+                <a href="{{ url_for('admin') }}" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-secondary transition-colors flex items-center justify-center">
+                    <i class="fas fa-box mr-2"></i>Manage Products
+                </a>
+                <a href="{{ url_for('index') }}" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors flex items-center justify-center">
+                    <i class="fas fa-home mr-2"></i>Back to Store
+                </a>
+            </div>
+        </div>
+            
+        {% if orders %}
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for order in orders %}
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-sm font-bold text-gray-900">#{{ order[0] }}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">{{ order[7] }}</div>
+                                    <div class="text-sm text-gray-500">{{ order[8] }}</div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ order[1] }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-sm font-bold text-primary">₹{{ "%.2f"|format(order[2]) }}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center text-sm">
+                                    {% if order[3] == 'GPay' %}
+                                        <i class="fab fa-google-pay text-primary mr-2"></i>Google Pay
+                                    {% elif order[3] == 'PhonePe' %}
+                                        <i class="fas fa-mobile-alt text-info mr-2"></i>PhonePe
+                                    {% elif order[3] == 'Paytm' %}
+                                        <i class="fas fa-wallet text-warning mr-2"></i>Paytm
+                                    {% elif order[3] == 'UPI' %}
+                                        <i class="fas fa-qrcode text-success mr-2"></i>UPI
+                                    {% elif order[3] == 'Card' %}
+                                        <i class="fas fa-credit-card text-gray-600 mr-2"></i>Card
+                                    {% elif order[3] == 'Net Banking' %}
+                                        <i class="fas fa-university text-primary mr-2"></i>Net Banking
+                                    {% elif order[3] == 'Cash on Delivery' %}
+                                        <i class="fas fa-money-bill-wave text-success mr-2"></i>COD
+                                    {% elif order[3] == 'EMI' %}
+                                        <i class="fas fa-calendar-alt text-info mr-2"></i>EMI
+                                    {% else %}
+                                        {{ order[3] }}
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <form method="POST" action="{{ url_for('update_order_status') }}" class="inline-block">
+                                    <input type="hidden" name="order_id" value="{{ order[0] }}">
+                                    <select name="status" class="bg-white border border-gray-300 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" 
+                                            onchange="this.form.submit()">
+                                        <option value="processing" {% if order[4] == 'processing' %}selected{% endif %}>Processing</option>
+                                        <option value="confirmed" {% if order[4] == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                                        <option value="shipped" {% if order[4] == 'shipped' %}selected{% endif %}>Shipped</option>
+                                        <option value="out_for_delivery" {% if order[4] == 'out_for_delivery' %}selected{% endif %}>Out for Delivery</option>
+                                        <option value="delivered" {% if order[4] == 'delivered' %}selected{% endif %}>Delivered</option>
+                                        <option value="cancelled" {% if order[4] == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                                    </select>
+                                </form>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <a href="tel:{{ order[6] }}" class="text-primary hover:text-secondary transition-colors">
+                                    <i class="fas fa-phone mr-1"></i>{{ order[6] }}
+                                </a>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex space-x-2">
+                                    <a href="{{ url_for('admin_order_details', order_id=order[0]) }}" 
+                                       class="bg-primary text-white px-3 py-1 rounded-lg hover:bg-secondary transition-colors"
+                                       title="View Order Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ url_for('admin_download_bill', order_id=order[0]) }}" 
+                                       class="bg-success text-white px-3 py-1 rounded-lg hover:bg-green-600 transition-colors"
+                                       title="Download Invoice">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Order Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
+            <div class="bg-warning text-white rounded-lg p-6 text-center">
+                <h5 class="text-2xl font-bold">{{ orders|selectattr('4', 'equalto', 'processing')|list|length }}</h5>
+                <p class="text-warning-100">Processing</p>
+            </div>
+            <div class="bg-info text-white rounded-lg p-6 text-center">
+                <h5 class="text-2xl font-bold">{{ orders|selectattr('4', 'equalto', 'shipped')|list|length }}</h5>
+                <p class="text-white/90">Shipped</p>
+            </div>
+            <div class="bg-success text-white rounded-lg p-6 text-center">
+                <h5 class="text-2xl font-bold">{{ orders|selectattr('4', 'equalto', 'delivered')|list|length }}</h5>
+                <p class="text-green-100">Delivered</p>
+            </div>
+            <div class="bg-primary text-white rounded-lg p-6 text-center">
+                <h5 class="text-2xl font-bold">{{ orders|length }}</h5>
+                <p class="text-white/90">Total Orders</p>
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <i class="fas fa-shopping-cart text-6xl text-gray-400 mb-4"></i>
+            <h4 class="text-xl font-semibold text-gray-600 mb-2">No Orders Yet</h4>
+            <p class="text-gray-500">No orders have been placed yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Auto-submit status change forms with better UX
+document.querySelectorAll('select[name="status"]').forEach(select => {
+    select.addEventListener('change', function() {
+        // Show loading state
+        const originalValue = this.value;
+        const originalText = this.options[this.selectedIndex].text;
+        
+        this.disabled = true;
+        this.style.opacity = '0.6';
+        
+        // Create loading indicator
+        const loadingOption = document.createElement('option');
+        loadingOption.text = 'Updating...';
+        loadingOption.value = '';
+        this.appendChild(loadingOption);
+        this.selectedIndex = this.options.length - 1;
+        
+        // Submit form
+        this.form.submit();
+    });
+});
+
+// Add smooth transitions for table rows
+document.querySelectorAll('tbody tr').forEach(row => {
+    row.addEventListener('mouseenter', function() {
+        this.classList.add('bg-accent/10');
+    });
+    
+    row.addEventListener('mouseleave', function() {
+        this.classList.remove('bg-accent/10');
+    });
+});
+
+// Add confirmation for status changes
+document.querySelectorAll('form[action*="update_order_status"]').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        const select = this.querySelector('select[name="status"]');
+        const newStatus = select.options[select.selectedIndex].text;
+        
+        if (!confirm(`Are you sure you want to change the order status to "${newStatus}"?`)) {
+            e.preventDefault();
+            select.selectedIndex = 0; // Reset to original value
+        }
+    });
+});
+</script>
+{% endblock %}

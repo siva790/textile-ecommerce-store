@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Textile Store{% endblock %}</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1a1a1a',
+                        secondary: '#2d2d2d',
+                        accent: '#c9a96e',
+                        gold: '#d4af37',
+                        charcoal: '#333333',
+                        silver: '#c0c0c0',
+                        success: '#10B981',
+                        warning: '#F59E0B',
+                        danger: '#EF4444',
+                        info: '#c9a96e'
+                    },
+                    fontFamily: {
+                        'serif': ['Playfair Display', 'serif'],
+                        'sans': ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/product-page.css') }}" rel="stylesheet">
+    <style>
+        /* Global Styles */
+        * {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #f8f9fa;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        main {
+            flex: 1;
+        }
+        
+        /* Glass Morphism Effect */
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        /* Hover Lift Effect */
+        .hover-lift {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #c9a96e 0%, #d4af37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Gold Accent Gradient */
+        .gold-gradient {
+            background: linear-gradient(135deg, #d4af37 0%, #f9d84c 100%);
+        }
+        
+        /* Smooth Scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Luxury Shadow */
+        .premium-shadow {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Elegant Divider */
+        .elegant-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #c9a96e, transparent);
+        }
+        
+        /* SUPER AGGRESSIVE - FORCE BLACK & GOLD EVERYWHERE */
+        * {
+            outline: none !important;
+        }
+        
+        /* Force all text-primary to be black */
+        .text-primary,
+        [class*="text-primary"] {
+            color: #1a1a1a !important;
+        }
+        
+        /* Force all bg-primary to be black background */
+        .bg-primary,
+        [class*="bg-primary"] {
+            background-color: #1a1a1a !important;
+        }
+        
+        /* Force all text-accent to be gold */
+        .text-accent,
+        [class*="text-accent"] {
+            color: #c9a96e !important;
+        }
+        
+        /* Force all bg-accent to be gold background */
+        .bg-accent,
+        [class*="bg-accent"] {
+            background-color: #c9a96e !important;
+        }
+        
+        /* Force all text-gold to be pure gold */
+        .text-gold,
+        [class*="text-gold"] {
+            color: #d4af37 !important;
+        }
+        
+        /* Remove ALL blue colors */
+        [class*="bg-blue"],
+        [class*="text-blue"],
+        [class*="border-blue"] {
+            background-color: #1a1a1a !important;
+            color: white !important;
+            border-color: #1a1a1a !important;
+        }
+        
+        /* Remove default blue underline and color from all links */
+        a {
+            text-decoration: none !important;
+        }
+        
+        a:link, a:visited, a:active {
+            text-decoration: none !important;
+        }
+        
+        /* Force button backgrounds */
+        button.bg-primary,
+        a.bg-primary {
+            background-color: #1a1a1a !important;
+        }
+        
+        /* Force icon colors - no default blue */
+        i.fas, i.far, i.fab {
+            color: inherit !important;
+        }
+        
+        /* Brand text - force black color */
+        nav .tracking-wide {
+            color: #1a1a1a !important;
+        }
+        
+        nav .tracking-wide .text-accent {
+            color: #c9a96e !important;
+        }
+        
+        /* Force hover states to work */
+        .hover\:text-accent:hover {
+            color: #c9a96e !important;
+        }
+        
+        .hover\:text-gold:hover {
+            color: #d4af37 !important;
+        }
+        
+        .hover\:bg-primary:hover {
+            background-color: rgba(26, 26, 26, 0.9) !important;
+        }
+        
+        /* Mega Menu Dropdown Fix */
+        .nav-dropdown {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+        }
+        
+        .nav-menu-container:hover .nav-dropdown,
+        .nav-dropdown:hover {
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+        }
+        
+        /* Keep dropdown visible when hovering */
+        .nav-menu-container .nav-dropdown {
+            margin-top: 0;
+            padding-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Modern AJIO-Style Navigation -->
+    <nav class="bg-white sticky top-0 z-50 shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center flex-shrink-0">
+                    <a href="{{ url_for('index') }}" class="text-3xl font-serif font-bold text-gray-900 hover:opacity-80 transition-all no-underline tracking-wider" style="letter-spacing: 0.05em;">
+                        LUXE<span class="text-yellow-600">TEXTILE</span>
+                    </a>
+                </div>
+                
+                <!-- Center Navigation - Categories -->
+                <div class="hidden lg:flex items-center space-x-8 flex-1 justify-center">
+                    <div class="relative nav-menu-container">
+                        <button class="nav-category-btn text-gray-900 hover:text-yellow-600 font-medium text-sm uppercase tracking-wide transition-colors flex items-center py-2 cursor-pointer focus:outline-none">
+                            MEN
+                            <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                        </button>
+                        <!-- Mega Menu -->
+                        <div class="nav-dropdown absolute left-1/2 transform -translate-x-1/2 top-full w-screen max-w-4xl bg-white shadow-2xl z-50 border-t-2 border-yellow-500">
+                            <div class="grid grid-cols-3 gap-6 p-8">
+                                <!-- Column 1: Topwear -->
+                                <div>
+                                    <h3 class="text-gray-900 font-bold text-sm mb-4 uppercase tracking-wide border-b-2 border-yellow-500 pb-2">Topwear</h3>
+                                    <ul class="space-y-2">
+                                        <li><a href="{{ url_for('products', gender='Men', category='T-Shirts') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">T-Shirts</a></li>
+                                        <li><a href="{{ url_for('products', gender='Men', category='Shirts') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Casual Shirts</a></li>
+                                        <li><a href="{{ url_for('products', gender='Men', category='Formal Shirts') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Formal Shirts</a></li>
+                                        <li><a href="{{ url_for('products', gender='Men', category='Polos') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Polos</a></li>
+                                        <li><a href="{{ url_for('products', gender='Men', category='Sweatshirts') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Sweatshirts & Hoodies</a></li>
+                                        <li><a href="{{ url_for('products', gender='Men', category='Sweaters') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Sweaters</a></li>
+                                        <li><a href="{{ url_for('products', gender='Men', category='Jackets') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Jackets & Coats</a></li>
+                                        <li><a href="{{ url_for('products', gender='Men', category='Blazers') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Blazers & Suits</a></li>
+                                    </ul>
+                                </div>
+                                
+                                <!-- Column 2: Bottomwear & Ethnic -->
+                                <div>
+                                    <h3 class="text-gray-900 font-bold text-sm mb-4 uppercase tracking-wide border-b-2 border-yellow-500 pb-2">Bottomwear</h3>
+                                    <ul class="space-y-2">
+                                        <li><a href="{{ url_for('products', gender='Men', category='Jeans') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Jeans</a></li>
+                                        <li><a href="{{ url_for('products', gender='Men', category='Trousers') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Trousers & Chinos</a></li>
+                                        <li><a href="{{ url_for('products', gender='Men', category='Shorts') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Shorts</a></li>
+                                        <li><a href="{{ url_for('products', gender='Men', category='Track Pants') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Track Pants</a></li>
+                                    </ul>
+                                    
+                                    <h3 class="text-gray-900 font-bold text-sm mb-4 mt-6 uppercase tracking-wide border-b-2 border-yellow-500 pb-2">Indian & Festive Wear</h3>
+                                    <ul class="space-y-2">
+                                        <li><a href="{{ url_for('products', gender='Men', category='Kurtas') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Kurtas & Kurta Sets</a></li>
+                                        <li><a href="{{ url_for('products', gender='Men', category='Sherwanis') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Sherwanis</a></li>
+                                        <li><a href="{{ url_for('products', gender='Men', category='Ethnic Wear') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Ethnic Wear</a></li>
+                                    </ul>
+                                </div>
+                                
+                                <!-- Column 3: Sports & More -->
+                                <div>
+                                    <h3 class="text-gray-900 font-bold text-sm mb-4 uppercase tracking-wide border-b-2 border-yellow-500 pb-2">Sports & Activewear</h3>
+                                    <ul class="space-y-2">
+                                        <li><a href="{{ url_for('products', gender='Men', category='Activewear') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Activewear</a></li>
+                                        <li><a href="{{ url_for('products', gender='Men', category='Sports Shoes') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Sports Shoes</a></li>
+                                        <li><a href="{{ url_for('products', gender='Men', category='Gym Wear') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Gym Wear</a></li>
+                                    </ul>
+                                    
+                                    <h3 class="text-gray-900 font-bold text-sm mb-4 mt-6 uppercase tracking-wide border-b-2 border-yellow-500 pb-2">Accessories</h3>
+                                    <ul class="space-y-2">
+                                        <li><a href="{{ url_for('products', gender='Men', category='Watches') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Watches</a></li>
+                                        <li><a href="{{ url_for('products', gender='Men', category='Belts') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Belts & Wallets</a></li>
+                                    </ul>
+                                    
+                                    <div class="mt-6 pt-6 border-t border-gray-200">
+                                        <a href="{{ url_for('products', gender='Men') }}" class="inline-block bg-gray-900 text-white px-6 py-2 rounded-lg hover:bg-yellow-600 transition-colors text-sm font-semibold">
+                                            View All Men's Clothing →
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="relative nav-menu-container">
+                        <button class="nav-category-btn text-gray-900 hover:text-yellow-600 font-medium text-sm uppercase tracking-wide transition-colors flex items-center py-2 cursor-pointer focus:outline-none">
+                            WOMEN
+                            <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                        </button>
+                        <!-- Mega Menu -->
+                        <div class="nav-dropdown absolute left-1/2 transform -translate-x-1/2 top-full w-screen max-w-4xl bg-white shadow-2xl z-50 border-t-2 border-yellow-500">
+                            <div class="grid grid-cols-3 gap-6 p-8">
+                                <!-- Column 1: Indian & Fusion Wear -->
+                                <div>
+                                    <h3 class="text-gray-900 font-bold text-sm mb-4 uppercase tracking-wide border-b-2 border-yellow-500 pb-2">Indian & Fusion Wear</h3>
+                                    <ul class="space-y-2">
+                                        <li><a href="{{ url_for('products', gender='Women', category='Kurtas') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Kurtas & Suits</a></li>
+                                        <li><a href="{{ url_for('products', gender='Women', category='Kurtis') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Kurtis, Tunics & Tops</a></li>
+                                        <li><a href="{{ url_for('products', gender='Women', category='Sarees') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Sarees</a></li>
+                                        <li><a href="{{ url_for('products', gender='Women', category='Ethnic Wear') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Ethnic Wear</a></li>
+                                        <li><a href="{{ url_for('products', gender='Women', category='Leggings') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Leggings, Salwars & Churidars</a></li>
+                                        <li><a href="{{ url_for('products', gender='Women', category='Skirts') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Skirts & Palazzos</a></li>
+                                        <li><a href="{{ url_for('products', gender='Women', category='Dress Materials') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Dress Materials</a></li>
+                                        <li><a href="{{ url_for('products', gender='Women', category='Lehenga') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Lehenga Cholis</a></li>
+                                        <li><a href="{{ url_for('products', gender='Women', category='Dupattas') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Dupattas & Shawls</a></li>
+                                        <li><a href="{{ url_for('products', gender='Women', category='Jackets') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Jackets</a></li>
+                                    </ul>
+                                </div>
+                                
+                                <!-- Column 2: Western Wear -->
+                                <div>
+                                    <h3 class="text-gray-900 font-bold text-sm mb-4 uppercase tracking-wide border-b-2 border-yellow-500 pb-2">Western Wear</h3>
+                                    <ul class="space-y-2">
+                                        <li><a href="{{ url_for('products', gender='Women', category='Dresses') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Dresses</a></li>
+                                        <li><a href="{{ url_for('products', gender='Women', category='Tops') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Tops</a></li>
+                                        <li><a href="{{ url_for('products', gender='Women', category='Tshirts') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Tshirts</a></li>
+                                        <li><a href="{{ url_for('products', gender='Women', category='Jeans') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Jeans</a></li>
+                                        <li><a href="{{ url_for('products', gender='Women', category='Trousers') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Trousers & Capris</a></li>
+                                        <li><a href="{{ url_for('products', gender='Women', category='Shorts') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Shorts & Skirts</a></li>
+                                        <li><a href="{{ url_for('products', gender='Women', category='Co-ords') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Co-ords</a></li>
+                                        <li><a href="{{ url_for('products', gender='Women', category='Playsuits') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Playsuits</a></li>
+                                        <li><a href="{{ url_for('products', gender='Women', category='Jumpsuits') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Jumpsuits</a></li>
+                                        <li><a href="{{ url_for('products', gender='Women', category='Shrugs') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Shrugs</a></li>
+                                        <li><a href="{{ url_for('products', gender='Women', category='Sweaters') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Sweaters & Sweatshirts</a></li>
+                                        <li><a href="{{ url_for('products', gender='Women', category='Coats') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Jackets & Coats</a></li>
+                                        <li><a href="{{ url_for('products', gender='Women', category='Blazers') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Blazers & Waistcoats</a></li>
+                                    </ul>
+                                </div>
+                                
+                                <!-- Column 3: More Categories -->
+                                <div>
+                                    <h3 class="text-gray-900 font-bold text-sm mb-4 uppercase tracking-wide border-b-2 border-yellow-500 pb-2">Accessories & More</h3>
+                                    <ul class="space-y-2">
+                                        <li><a href="{{ url_for('products', gender='Women', category='Belts') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Belts, Scarves & More</a></li>
+                                        <li><a href="{{ url_for('products', gender='Women', category='Watches') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Watches & Wearables</a></li>
+                                        <li><a href="{{ url_for('products', gender='Women', category='Plus Size') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Plus Size</a></li>
+                                    </ul>
+                                    
+                                    <div class="mt-6 pt-6 border-t border-gray-200">
+                                        <a href="{{ url_for('products', gender='Women') }}" class="inline-block bg-gray-900 text-white px-6 py-2 rounded-lg hover:bg-yellow-600 transition-colors text-sm font-semibold">
+                                            View All Women's Clothing →
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="relative nav-menu-container">
+                        <button class="nav-category-btn text-gray-900 hover:text-yellow-600 font-medium text-sm uppercase tracking-wide transition-colors flex items-center py-2 cursor-pointer focus:outline-none">
+                            KIDS
+                            <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                        </button>
+                        <!-- Mega Menu -->
+                        <div class="nav-dropdown absolute left-1/2 transform -translate-x-1/2 top-full w-screen max-w-4xl bg-white shadow-2xl z-50 border-t-2 border-yellow-500">
+                            <div class="grid grid-cols-3 gap-6 p-8">
+                                <!-- Column 1: Boys Clothing -->
+                                <div>
+                                    <h3 class="text-gray-900 font-bold text-sm mb-4 uppercase tracking-wide border-b-2 border-yellow-500 pb-2">Boys Clothing</h3>
+                                    <ul class="space-y-2">
+                                        <li><a href="{{ url_for('products', gender='Boys', category='T-Shirts') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">T-Shirts & Polos</a></li>
+                                        <li><a href="{{ url_for('products', gender='Boys', category='Shirts') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Shirts</a></li>
+                                        <li><a href="{{ url_for('products', gender='Boys', category='Jeans') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Jeans & Trousers</a></li>
+                                        <li><a href="{{ url_for('products', gender='Boys', category='Shorts') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Shorts</a></li>
+                                        <li><a href="{{ url_for('products', gender='Boys', category='Ethnic Wear') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Ethnic Wear</a></li>
+                                        <li><a href="{{ url_for('products', gender='Boys', category='Kurtas') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Kurtas & Sets</a></li>
+                                        <li><a href="{{ url_for('products', gender='Boys', category='Party Wear') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Party Wear</a></li>
+                                        <li><a href="{{ url_for('products', gender='Boys', category='Winter Wear') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Jackets & Sweatshirts</a></li>
+                                    </ul>
+                                </div>
+                                
+                                <!-- Column 2: Girls Clothing -->
+                                <div>
+                                    <h3 class="text-gray-900 font-bold text-sm mb-4 uppercase tracking-wide border-b-2 border-yellow-500 pb-2">Girls Clothing</h3>
+                                    <ul class="space-y-2">
+                                        <li><a href="{{ url_for('products', gender='Girls', category='Dresses') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Dresses & Frocks</a></li>
+                                        <li><a href="{{ url_for('products', gender='Girls', category='Tops') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Tops & T-Shirts</a></li>
+                                        <li><a href="{{ url_for('products', gender='Girls', category='Jeans') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Jeans & Trousers</a></li>
+                                        <li><a href="{{ url_for('products', gender='Girls', category='Skirts') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Skirts & Shorts</a></li>
+                                        <li><a href="{{ url_for('products', gender='Girls', category='Ethnic Wear') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Ethnic Wear</a></li>
+                                        <li><a href="{{ url_for('products', gender='Girls', category='Lehenga') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Lehenga & Kurtas</a></li>
+                                        <li><a href="{{ url_for('products', gender='Girls', category='Party Wear') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Party Wear</a></li>
+                                        <li><a href="{{ url_for('products', gender='Girls', category='Winter Wear') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Jackets & Sweaters</a></li>
+                                    </ul>
+                                </div>
+                                
+                                <!-- Column 3: More -->
+                                <div>
+                                    <h3 class="text-gray-900 font-bold text-sm mb-4 uppercase tracking-wide border-b-2 border-yellow-500 pb-2">Categories</h3>
+                                    <ul class="space-y-2">
+                                        <li><a href="{{ url_for('products', gender='Boys') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">All Boys Clothing</a></li>
+                                        <li><a href="{{ url_for('products', gender='Girls') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">All Girls Clothing</a></li>
+                                        <li><a href="{{ url_for('products', gender='Boys', category='Toys') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Toys & Games</a></li>
+                                        <li><a href="{{ url_for('products', gender='Boys', category='Accessories') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">Accessories</a></li>
+                                    </ul>
+                                    
+                                    <h3 class="text-gray-900 font-bold text-sm mb-4 mt-6 uppercase tracking-wide border-b-2 border-yellow-500 pb-2">By Age</h3>
+                                    <ul class="space-y-2">
+                                        <li><a href="{{ url_for('products', gender='Boys', category='0-2 Years') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">0-2 Years</a></li>
+                                        <li><a href="{{ url_for('products', gender='Boys', category='2-5 Years') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">2-5 Years</a></li>
+                                        <li><a href="{{ url_for('products', gender='Boys', category='5-8 Years') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">5-8 Years</a></li>
+                                        <li><a href="{{ url_for('products', gender='Boys', category='8+ Years') }}" class="text-gray-700 hover:text-yellow-600 text-sm transition-colors">8+ Years</a></li>
+                                    </ul>
+                                    
+                                    <div class="mt-6 pt-6 border-t border-gray-200">
+                                        <a href="{{ url_for('products', gender='Boys') }}" class="inline-block bg-gray-900 text-white px-6 py-2 rounded-lg hover:bg-yellow-600 transition-colors text-sm font-semibold">
+                                            View All Kids Clothing →
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <a href="{{ url_for('products') }}" class="text-gray-900 hover:text-yellow-600 font-medium text-sm uppercase tracking-wide transition-colors">
+                        ALL PRODUCTS
+                    </a>
+                </div>
+                
+                <!-- Right Side - Search & Icons -->
+                <div class="hidden md:flex items-center space-x-6">
+                    <!-- Search Bar -->
+                    <div class="relative flex items-center">
+                        <i class="fas fa-search absolute left-3 text-gray-500 pointer-events-none"></i>
+                        <input type="text" id="navSearch" placeholder="    Search LUXE TEXTILE" class="w-64 h-10 px-4 pl-11 bg-gray-100 border-0 rounded-md text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-all">
+                    </div>
+                    
+                    {% if session.user_id %}
+                        <!-- Wishlist Icon -->
+                        <a href="{{ url_for('wishlist') }}" class="text-gray-700 hover:text-yellow-600 transition-colors" title="Wishlist">
+                            <i class="far fa-heart text-xl"></i>
+                        </a>
+                        
+                        <!-- Cart Icon -->
+                        <a href="{{ url_for('cart') }}" class="text-gray-700 hover:text-yellow-600 transition-colors" title="Cart">
+                            <i class="fas fa-shopping-bag text-xl"></i>
+                        </a>
+                        
+                        <!-- My Orders Icon with Badge -->
+                        <a href="{{ url_for('orders') }}" class="relative text-gray-700 hover:text-yellow-600 transition-colors group" title="My Orders">
+                            <i class="fas fa-box text-xl"></i>
+                            <span class="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <i class="fas fa-shipping-fast text-xs"></i>
+                            </span>
+                        </a>
+                        
+                        <!-- User Menu -->
+                        <div class="relative" id="userMenuContainer">
+                            <button id="userMenuBtn" class="text-gray-700 hover:text-yellow-600 transition-colors flex items-center space-x-2 focus:outline-none">
+                                <i class="far fa-user text-xl"></i>
+                                <span class="text-sm font-medium">{{ session.user_name }}</span>
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </button>
+                            <div id="userMenuDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl transition-all duration-200 z-50 border border-yellow-100">
+                                {% if session.is_admin %}
+                                <a href="{{ url_for('admin') }}" class="block px-4 py-3 text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 transition-colors text-sm border-b border-gray-100 rounded-t-lg">
+                                    <i class="fas fa-crown mr-2 text-yellow-600"></i>Admin Panel
+                                </a>
+                                {% endif %}
+                                <a href="{{ url_for('orders') }}" class="block px-4 py-3 text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 transition-colors text-sm border-b border-gray-100 {% if not session.is_admin %}rounded-t-lg{% endif %}">
+                                    <i class="fas fa-box mr-2 text-yellow-600"></i>My Orders
+                                </a>
+                                <a href="{{ url_for('logout') }}" class="block px-4 py-3 text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors text-sm rounded-b-lg">
+                                    <i class="fas fa-sign-out-alt mr-2 text-red-500"></i>Logout
+                                </a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <!-- User Icon for Not Logged In -->
+                        <div class="relative" id="guestMenuContainer">
+                            <button id="guestMenuBtn" class="text-gray-700 hover:text-yellow-600 transition-colors focus:outline-none">
+                                <i class="far fa-user text-xl"></i>
+                            </button>
+                            <div id="guestMenuDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl transition-all duration-200 z-50 border border-yellow-100">
+                                <a href="{{ url_for('login') }}" class="block px-4 py-3 text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 transition-colors text-sm border-b border-gray-100 rounded-t-lg">
+                                    <i class="fas fa-sign-in-alt mr-2 text-yellow-600"></i>Login
+                                </a>
+                                <a href="{{ url_for('register') }}" class="block px-4 py-3 text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 transition-colors text-sm rounded-b-lg">
+                                    <i class="fas fa-user-plus mr-2 text-yellow-600"></i>Register
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-button" class="text-gray-900 hover:text-gray-600 focus:outline-none transition-all duration-300">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+                <!-- Mobile Navigation -->
+        <div id="mobile-menu" class="md:hidden hidden bg-white border-t border-gray-200">
+            <div class="px-4 py-3 space-y-2">
+                <!-- Mobile Search -->
+                <div class="relative flex items-center mb-3">
+                    <i class="fas fa-search absolute left-3 text-gray-500 pointer-events-none"></i>
+                    <input type="text" placeholder="Search products..." class="w-full h-10 px-4 pl-11 bg-gray-100 border-0 rounded-md text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                </div>
+                
+                <a href="{{ url_for('index') }}" class="block px-3 py-2 text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-sm font-medium">
+                    <i class="fas fa-home mr-2"></i>Home
+                </a>
+                
+                <!-- Men Menu -->
+                <div class="border-l-2 border-yellow-500">
+                    <button onclick="toggleMobileSubmenu('menSubmenu')" class="w-full flex items-center justify-between px-3 py-2 text-gray-900 font-semibold hover:bg-yellow-50 rounded-md transition-colors text-sm">
+                        <span><i class="fas fa-male mr-2"></i>MEN</span>
+                        <i class="fas fa-chevron-down text-xs transition-transform" id="menSubmenuIcon"></i>
+                    </button>
+                    <div id="menSubmenu" class="hidden pl-4 space-y-1">
+                        <a href="{{ url_for('products', gender='Men') }}" class="block px-3 py-2 text-gray-600 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-xs">All Men's Clothing</a>
+                        <a href="{{ url_for('products', gender='Men', category='Shirts') }}" class="block px-3 py-2 text-gray-600 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-xs">Shirts</a>
+                        <a href="{{ url_for('products', gender='Men', category='T-Shirts') }}" class="block px-3 py-2 text-gray-600 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-xs">T-Shirts & Polos</a>
+                        <a href="{{ url_for('products', gender='Men', category='Jeans') }}" class="block px-3 py-2 text-gray-600 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-xs">Jeans & Trousers</a>
+                        <a href="{{ url_for('products', gender='Men', category='Ethnic Wear') }}" class="block px-3 py-2 text-gray-600 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-xs">Ethnic Wear</a>
+                        <a href="{{ url_for('products', gender='Men', category='Suits') }}" class="block px-3 py-2 text-gray-600 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-xs">Suits & Blazers</a>
+                    </div>
+                </div>
+                
+                <!-- Women Menu -->
+                <div class="border-l-2 border-yellow-500">
+                    <button onclick="toggleMobileSubmenu('womenSubmenu')" class="w-full flex items-center justify-between px-3 py-2 text-gray-900 font-semibold hover:bg-yellow-50 rounded-md transition-colors text-sm">
+                        <span><i class="fas fa-female mr-2"></i>WOMEN</span>
+                        <i class="fas fa-chevron-down text-xs transition-transform" id="womenSubmenuIcon"></i>
+                    </button>
+                    <div id="womenSubmenu" class="hidden pl-4 space-y-1">
+                        <a href="{{ url_for('products', gender='Women') }}" class="block px-3 py-2 text-gray-600 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-xs">All Women's Clothing</a>
+                        <a href="{{ url_for('products', gender='Women', category='Dresses') }}" class="block px-3 py-2 text-gray-600 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-xs">Dresses</a>
+                        <a href="{{ url_for('products', gender='Women', category='Tops') }}" class="block px-3 py-2 text-gray-600 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-xs">Tops & Tunics</a>
+                        <a href="{{ url_for('products', gender='Women', category='Ethnic Wear') }}" class="block px-3 py-2 text-gray-600 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-xs">Ethnic Wear</a>
+                        <a href="{{ url_for('products', gender='Women', category='Sarees') }}" class="block px-3 py-2 text-gray-600 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-xs">Sarees & Lehengas</a>
+                        <a href="{{ url_for('products', gender='Women', category='Western Wear') }}" class="block px-3 py-2 text-gray-600 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-xs">Western Wear</a>
+                    </div>
+                </div>
+                
+                <!-- Kids Menu -->
+                <div class="border-l-2 border-yellow-500">
+                    <button onclick="toggleMobileSubmenu('kidsSubmenu')" class="w-full flex items-center justify-between px-3 py-2 text-gray-900 font-semibold hover:bg-yellow-50 rounded-md transition-colors text-sm">
+                        <span><i class="fas fa-child mr-2"></i>KIDS</span>
+                        <i class="fas fa-chevron-down text-xs transition-transform" id="kidsSubmenuIcon"></i>
+                    </button>
+                    <div id="kidsSubmenu" class="hidden pl-4 space-y-1">
+                        <a href="{{ url_for('products', gender='Boys') }}" class="block px-3 py-2 text-gray-600 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-xs">Boys Clothing</a>
+                        <a href="{{ url_for('products', gender='Girls') }}" class="block px-3 py-2 text-gray-600 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-xs">Girls Clothing</a>
+                        <a href="{{ url_for('products', gender='Boys', category='T-Shirts') }}" class="block px-3 py-2 text-gray-600 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-xs">T-Shirts & Tops</a>
+                        <a href="{{ url_for('products', gender='Girls', category='Dresses') }}" class="block px-3 py-2 text-gray-600 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-xs">Dresses & Frocks</a>
+                        <a href="{{ url_for('products', gender='Boys', category='Ethnic Wear') }}" class="block px-3 py-2 text-gray-600 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-xs">Ethnic Wear</a>
+                        <a href="{{ url_for('products', gender='Boys', category='Party Wear') }}" class="block px-3 py-2 text-gray-600 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-xs">Party Wear</a>
+                    </div>
+                </div>
+                
+                <a href="{{ url_for('products') }}" class="block px-3 py-2 text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-sm font-medium">
+                    <i class="fas fa-th mr-2"></i>ALL PRODUCTS
+                </a>
+                
+                {% if session.user_id %}
+                <div class="border-t border-gray-200 mt-3 pt-3">
+                    <a href="{{ url_for('profile') }}" class="block px-3 py-2 text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-sm font-medium">
+                        <i class="fas fa-user-circle mr-2 text-yellow-600"></i>My Profile
+                    </a>
+                    <a href="{{ url_for('wishlist') }}" class="block px-3 py-2 text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-sm font-medium">
+                        <i class="far fa-heart mr-2"></i>Wishlist
+                    </a>
+                    <a href="{{ url_for('cart') }}" class="block px-3 py-2 text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-sm font-medium">
+                        <i class="fas fa-shopping-bag mr-2"></i>Cart
+                    </a>
+                    <a href="{{ url_for('orders') }}" class="block px-3 py-2 text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-sm font-medium">
+                        <i class="fas fa-box mr-2 text-yellow-600"></i>My Orders & Tracking
+                    </a>
+                        {% if session.is_admin %}
+                    <a href="{{ url_for('admin') }}" class="block px-3 py-2 text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-sm font-medium">
+                        <i class="fas fa-crown mr-2 text-yellow-600"></i>Admin Panel
+                        </a>
+                        {% endif %}
+                    <a href="{{ url_for('logout') }}" class="block px-3 py-2 text-red-600 hover:bg-red-50 rounded-md transition-colors text-sm font-medium">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        </a>
+                </div>
+                        {% else %}
+                <div class="border-t border-gray-200 mt-3 pt-3">
+                    <a href="{{ url_for('login') }}" class="block px-3 py-2 text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-sm font-medium">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Login
+                    </a>
+                    <a href="{{ url_for('register') }}" class="block px-3 py-2 text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 rounded-md transition-colors text-sm font-medium">
+                        <i class="fas fa-user-plus mr-2"></i>Register
+                    </a>
+                </div>
+                        {% endif %}
+                    </div>
+                </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+                {% for category, message in messages %}
+                    <div class="alert-{{ 'danger' if category == 'error' else category }} bg-{{ 'red' if category == 'error' else 'green' if category == 'success' else 'amber' if category == 'info' else 'yellow' }}-100 border border-{{ 'red' if category == 'error' else 'green' if category == 'success' else 'amber' if category == 'info' else 'yellow' }}-400 text-{{ 'red' if category == 'error' else 'green' if category == 'success' else 'amber' if category == 'info' else 'yellow' }}-700 px-4 py-3 rounded-lg mb-4 flex justify-between items-center" role="alert">
+                        <span>{{ message }}</span>
+                        <button type="button" class="text-{{ 'red' if category == 'error' else 'green' if category == 'success' else 'amber' if category == 'info' else 'yellow' }}-700 hover:text-{{ 'red' if category == 'error' else 'green' if category == 'success' else 'amber' if category == 'info' else 'yellow' }}-900" onclick="this.parentElement.remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main class="min-h-screen">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Modern Footer -->
+    <footer class="bg-gray-50 border-t border-gray-200 py-12 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Brand -->
+                <div class="col-span-1">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">LUXE<span class="text-gray-600">TEXTILE</span></h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">Your premium destination for quality textiles and fashion.</p>
+                </div>
+                
+                <!-- Shop -->
+                <div>
+                    <h4 class="font-semibold text-gray-900 mb-4 text-sm uppercase tracking-wide">Shop</h4>
+                    <ul class="space-y-2">
+                        <li><a href="{{ url_for('products', gender='Men') }}" class="text-gray-600 hover:text-gray-900 text-sm transition-colors">Men</a></li>
+                        <li><a href="{{ url_for('products', gender='Women') }}" class="text-gray-600 hover:text-gray-900 text-sm transition-colors">Women</a></li>
+                        <li><a href="{{ url_for('products', gender='Boys') }}" class="text-gray-600 hover:text-gray-900 text-sm transition-colors">Kids</a></li>
+                        <li><a href="{{ url_for('products') }}" class="text-gray-600 hover:text-gray-900 text-sm transition-colors">All Products</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Customer Service -->
+                <div>
+                    <h4 class="font-semibold text-gray-900 mb-4 text-sm uppercase tracking-wide">Customer Service</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-gray-900 text-sm transition-colors">Contact Us</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-gray-900 text-sm transition-colors">Track Order</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-gray-900 text-sm transition-colors">Returns</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-gray-900 text-sm transition-colors">FAQs</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Connect -->
+                <div>
+                    <h4 class="font-semibold text-gray-900 mb-4 text-sm uppercase tracking-wide">Connect</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-600 hover:text-gray-900 transition-colors">
+                            <i class="fab fa-facebook-f text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-600 hover:text-gray-900 transition-colors">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-600 hover:text-gray-900 transition-colors">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-600 hover:text-gray-900 transition-colors">
+                            <i class="fab fa-youtube text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bottom Bar -->
+            <div class="border-t border-gray-200 mt-8 pt-8 text-center">
+                <p class="text-gray-500 text-sm">&copy; 2024 LUXE TEXTILE. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Mobile submenu toggle
+        function toggleMobileSubmenu(submenuId) {
+            const submenu = document.getElementById(submenuId);
+            const icon = document.getElementById(submenuId + 'Icon');
+            
+            if (submenu.classList.contains('hidden')) {
+                submenu.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+            } else {
+                submenu.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+            }
+        }
+
+        // Category button navigation - Prevent default click, only allow hover
+        document.addEventListener('DOMContentLoaded', function() {
+            const categoryButtons = document.querySelectorAll('.nav-category-btn');
+            categoryButtons.forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault(); // Prevent any default action
+                    // Do nothing on click - only hover works
+                });
+            });
+        });
+
+        // Search functionality
+        const navSearch = document.getElementById('navSearch');
+        if (navSearch) {
+            navSearch.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const searchTerm = this.value.trim();
+                    if (searchTerm) {
+                        window.location.href = "{{ url_for('products') }}?search=" + encodeURIComponent(searchTerm);
+                    }
+                }
+            });
+        }
+
+        // User Menu Dropdown (Logged In)
+        const userMenuBtn = document.getElementById('userMenuBtn');
+        const userMenuDropdown = document.getElementById('userMenuDropdown');
+        const userMenuContainer = document.getElementById('userMenuContainer');
+
+        if (userMenuBtn && userMenuDropdown) {
+            // Toggle dropdown on button click
+            userMenuBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                userMenuDropdown.classList.toggle('hidden');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (userMenuContainer && !userMenuContainer.contains(e.target)) {
+                    userMenuDropdown.classList.add('hidden');
+                }
+            });
+
+            // Prevent dropdown from closing when clicking inside it
+            userMenuDropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+
+        // Guest Menu Dropdown (Not Logged In)
+        const guestMenuBtn = document.getElementById('guestMenuBtn');
+        const guestMenuDropdown = document.getElementById('guestMenuDropdown');
+        const guestMenuContainer = document.getElementById('guestMenuContainer');
+
+        if (guestMenuBtn && guestMenuDropdown) {
+            // Toggle dropdown on button click
+            guestMenuBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                guestMenuDropdown.classList.toggle('hidden');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (guestMenuContainer && !guestMenuContainer.contains(e.target)) {
+                    guestMenuDropdown.classList.add('hidden');
+                }
+            });
+
+            // Prevent dropdown from closing when clicking inside it
+            guestMenuDropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+    </script>
+</body>
+</html>

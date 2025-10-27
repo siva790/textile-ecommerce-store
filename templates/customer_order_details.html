@@ -1,0 +1,307 @@
+{% extends "base.html" %}
+
+{% block title %}Order Tracking #{{ order[0] }} - LUXE TEXTILE{% endblock %}
+
+{% block content %}
+<!-- Customer Order Details & Tracking Page -->
+<div class="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        
+        <!-- Header Section -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+            <div>
+                <h1 class="text-4xl font-serif font-bold text-gray-900 mb-2 flex items-center">
+                    <i class="fas fa-map-marker-alt mr-3 text-yellow-600"></i>
+                    Track Order #{{ order[0] }}
+                </h1>
+                <p class="text-gray-600">View your order status and details</p>
+            </div>
+            <div class="flex gap-3">
+                <a href="{{ url_for('orders') }}" 
+                   class="inline-flex items-center bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back to Orders
+                </a>
+                <a href="{{ url_for('download_bill', order_id=order[0]) }}" 
+                   class="inline-flex items-center bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-6 py-3 rounded-xl font-bold transition-all duration-300 shadow-lg">
+                    <i class="fas fa-download mr-2"></i>
+                    Invoice
+                </a>
+            </div>
+        </div>
+        
+        <!-- Order Status Timeline -->
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden mb-8">
+            <div class="bg-gradient-to-r from-gray-900 to-gray-800 px-6 py-4">
+                <h2 class="text-xl font-bold text-white flex items-center">
+                    <i class="fas fa-shipping-fast mr-3 text-yellow-500"></i>
+                    Order Status Timeline
+                </h2>
+            </div>
+            <div class="p-8">
+                <div class="relative">
+                    <!-- Timeline Line -->
+                    <div class="absolute left-8 top-0 bottom-0 w-1 bg-gray-200"></div>
+                    
+                    <!-- Timeline Items -->
+                    <div class="space-y-8">
+                        <!-- Order Placed -->
+                        <div class="relative flex items-start">
+                            <div class="flex-shrink-0 w-16 h-16 rounded-full {% if order[5] %}bg-green-500{% else %}bg-gray-300{% endif %} flex items-center justify-center z-10 shadow-lg">
+                                <i class="fas fa-check text-white text-xl"></i>
+                            </div>
+                            <div class="ml-6 flex-1">
+                                <div class="bg-gray-50 rounded-xl p-4 border-2 {% if order[5] %}border-green-500{% else %}border-gray-200{% endif %}">
+                                    <p class="text-lg font-bold text-gray-900">Order Placed</p>
+                                    <p class="text-sm text-gray-600 mt-1">{{ order[2] }}</p>
+                                    <p class="text-xs text-gray-500 mt-2">Your order has been confirmed and is being processed</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Order Confirmed -->
+                        <div class="relative flex items-start">
+                            <div class="flex-shrink-0 w-16 h-16 rounded-full {% if order[5] in ['confirmed', 'shipped', 'out_for_delivery', 'delivered'] %}bg-green-500{% else %}bg-gray-300{% endif %} flex items-center justify-center z-10 shadow-lg">
+                                <i class="fas fa-check text-white text-xl"></i>
+                            </div>
+                            <div class="ml-6 flex-1">
+                                <div class="bg-gray-50 rounded-xl p-4 border-2 {% if order[5] in ['confirmed', 'shipped', 'out_for_delivery', 'delivered'] %}border-green-500{% else %}border-gray-200{% endif %}">
+                                    <p class="text-lg font-bold text-gray-900">Order Confirmed</p>
+                                    <p class="text-xs text-gray-500 mt-2">Your order has been confirmed and will be shipped soon</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Order Shipped -->
+                        <div class="relative flex items-start">
+                            <div class="flex-shrink-0 w-16 h-16 rounded-full {% if order[5] in ['shipped', 'out_for_delivery', 'delivered'] %}bg-green-500{% elif order[5] == 'cancelled' %}bg-red-500{% else %}bg-gray-300{% endif %} flex items-center justify-center z-10 shadow-lg">
+                                <i class="fas {% if order[5] == 'cancelled' %}fa-times{% else %}fa-check{% endif %} text-white text-xl"></i>
+                            </div>
+                            <div class="ml-6 flex-1">
+                                <div class="bg-gray-50 rounded-xl p-4 border-2 {% if order[5] in ['shipped', 'out_for_delivery', 'delivered'] %}border-green-500{% elif order[5] == 'cancelled' %}border-red-500{% else %}border-gray-200{% endif %}">
+                                    <p class="text-lg font-bold text-gray-900">Order Shipped</p>
+                                    <p class="text-xs text-gray-500 mt-2">Your order is on its way</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Out for Delivery -->
+                        <div class="relative flex items-start">
+                            <div class="flex-shrink-0 w-16 h-16 rounded-full {% if order[5] in ['out_for_delivery', 'delivered'] %}bg-green-500{% else %}bg-gray-300{% endif %} flex items-center justify-center z-10 shadow-lg">
+                                <i class="fas fa-check text-white text-xl"></i>
+                            </div>
+                            <div class="ml-6 flex-1">
+                                <div class="bg-gray-50 rounded-xl p-4 border-2 {% if order[5] in ['out_for_delivery', 'delivered'] %}border-green-500{% else %}border-gray-200{% endif %}">
+                                    <p class="text-lg font-bold text-gray-900">Out for Delivery</p>
+                                    <p class="text-xs text-gray-500 mt-2">Your order is out for delivery and will reach you soon</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Delivered or Cancelled -->
+                        <div class="relative flex items-start">
+                            <div class="flex-shrink-0 w-16 h-16 rounded-full {% if order[5] == 'delivered' %}bg-green-500{% elif order[5] == 'cancelled' %}bg-red-500{% else %}bg-gray-300{% endif %} flex items-center justify-center z-10 shadow-lg">
+                                <i class="fas {% if order[5] == 'cancelled' %}fa-times{% else %}fa-check{% endif %} text-white text-xl"></i>
+                            </div>
+                            <div class="ml-6 flex-1">
+                                <div class="bg-gray-50 rounded-xl p-4 border-2 {% if order[5] == 'delivered' %}border-green-500{% elif order[5] == 'cancelled' %}border-red-500{% else %}border-gray-200{% endif %}">
+                                    <p class="text-lg font-bold {% if order[5] == 'cancelled' %}text-red-600{% else %}text-gray-900{% endif %}">
+                                        {% if order[5] == 'delivered' %}
+                                            Order Delivered
+                                        {% elif order[5] == 'cancelled' %}
+                                            Order Cancelled
+                                        {% else %}
+                                            Pending Delivery
+                                        {% endif %}
+                                    </p>
+                                    <p class="text-xs text-gray-500 mt-2">
+                                        {% if order[5] == 'delivered' %}
+                                            Your order has been successfully delivered. Thank you for shopping with us!
+                                        {% elif order[5] == 'cancelled' %}
+                                            This order has been cancelled
+                                        {% else %}
+                                            Awaiting delivery
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Two Column Layout for Order Details -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <!-- Order Items - 2 columns -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                    <div class="bg-gradient-to-r from-gray-900 to-gray-800 px-6 py-4">
+                        <h2 class="text-xl font-bold text-white flex items-center">
+                            <i class="fas fa-box-open mr-3 text-yellow-500"></i>
+                            Order Items
+                        </h2>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        {% for item in items %}
+                        <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200 hover:shadow-md transition-shadow">
+                            {% set images = item[4].split(',') if item[4] else ['tshirt.jpg'] %}
+                            <div class="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden border-2 border-gray-300">
+                                <img src="{{ url_for('static', filename='images/' + images[0].strip()) }}" 
+                                     alt="{{ item[0] }}" 
+                                     class="w-full h-full object-cover">
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-bold text-gray-900">{{ item[0] }}</h3>
+                                <p class="text-sm text-gray-600 mt-1">Category: {{ item[1] }}</p>
+                                <div class="flex items-center gap-4 mt-2">
+                                    <span class="text-sm text-gray-600">Qty: <strong>{{ item[2] }}</strong></span>
+                                    <span class="text-sm text-gray-600">Price: <strong class="text-green-600">₹{{ "%.0f"|format(item[3]) }}</strong></span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-gray-500">Total</p>
+                                <p class="text-xl font-bold text-gray-900">₹{{ "%.0f"|format(item[2] * item[3]) }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Summary - 1 column -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Order Summary Card -->
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                    <div class="bg-gradient-to-r from-gray-900 to-gray-800 px-6 py-4">
+                        <h2 class="text-xl font-bold text-white flex items-center">
+                            <i class="fas fa-receipt mr-3 text-yellow-500"></i>
+                            Summary
+                        </h2>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+                            <span class="text-gray-600">Subtotal</span>
+                            <span class="font-bold text-gray-900">₹{{ "%.0f"|format(order[3]) }}</span>
+                        </div>
+                        <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+                            <span class="text-gray-600">Shipping</span>
+                            <span class="font-bold text-green-600">FREE</span>
+                        </div>
+                        <div class="flex justify-between items-center py-4 bg-yellow-50 rounded-lg px-4">
+                            <span class="font-bold text-gray-900 text-lg">Total</span>
+                            <span class="font-bold text-yellow-600 text-2xl">₹{{ "%.0f"|format(order[3]) }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Shipping Address Card -->
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                    <div class="bg-gradient-to-r from-gray-900 to-gray-800 px-6 py-4">
+                        <h2 class="text-xl font-bold text-white flex items-center">
+                            <i class="fas fa-map-marker-alt mr-3 text-yellow-500"></i>
+                            Shipping Address
+                        </h2>
+                    </div>
+                    <div class="p-6">
+                        <div class="bg-gray-50 border-2 border-gray-200 p-4 rounded-xl">
+                            <p class="text-gray-900 leading-relaxed">{{ order[6] }}</p>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <p class="text-sm text-gray-600 mb-2">
+                                <i class="fas fa-phone text-green-600 mr-2"></i>
+                                <strong>Phone:</strong> {{ order[7] }}
+                            </p>
+                            <p class="text-sm text-gray-600">
+                                <i class="fas fa-credit-card text-blue-600 mr-2"></i>
+                                <strong>Payment:</strong> {{ order[4] }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Actions Card -->
+                {% if order[5] in ['processing', 'confirmed'] %}
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                    <div class="p-6">
+                        <button onclick="cancelOrderFromDetails({{ order[0] }})"
+                                class="w-full bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl font-bold transition-all duration-300 shadow-lg">
+                            <i class="fas fa-times-circle mr-2"></i>
+                            Cancel Order
+                        </button>
+                    </div>
+                </div>
+                {% elif order[5] == 'delivered' %}
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                    <div class="p-6">
+                        <button onclick="returnOrderFromDetails({{ order[0] }})"
+                                class="w-full bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-bold transition-all duration-300 shadow-lg">
+                            <i class="fas fa-undo-alt mr-2"></i>
+                            Request Return
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Cancel Order Function
+function cancelOrderFromDetails(orderId) {
+    if (confirm('Are you sure you want to cancel this order?\n\nThis action cannot be undone.')) {
+        fetch(`/cancel_order/${orderId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✓ Order cancelled successfully!');
+                window.location.href = '/orders';
+            } else {
+                alert('✗ Error: ' + (data.message || 'Failed to cancel order'));
+            }
+        })
+        .catch(error => {
+            alert('✗ An error occurred while cancelling the order');
+            console.error('Error:', error);
+        });
+    }
+}
+
+// Return Order Function
+function returnOrderFromDetails(orderId) {
+    const reason = prompt('Please enter the reason for return:\n\n(e.g., Wrong size, Damaged product, Not as described)');
+    
+    if (reason && reason.trim()) {
+        fetch(`/return_order/${orderId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ reason: reason.trim() })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✓ Return request submitted successfully!\n\nOur team will review your request and contact you soon.');
+                window.location.href = '/orders';
+            } else {
+                alert('✗ Error: ' + (data.message || 'Failed to submit return request'));
+            }
+        })
+        .catch(error => {
+            alert('✗ An error occurred while submitting the return request');
+            console.error('Error:', error);
+        });
+    } else if (reason !== null) {
+        alert('⚠️ Please provide a reason for the return');
+    }
+}
+</script>
+{% endblock %}
+

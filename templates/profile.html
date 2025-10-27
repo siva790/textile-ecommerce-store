@@ -1,0 +1,402 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile - Textile Store{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Page Header -->
+        <div class="bg-gradient-to-r from-primary to-secondary text-white rounded-lg shadow-xl p-8 mb-8">
+            <div class="flex items-center">
+                <i class="fas fa-user-circle text-6xl mr-6"></i>
+                <div>
+                    <h1 class="text-4xl font-bold">My Profile</h1>
+                    <p class="text-gray-200 mt-2">Manage your account settings</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    {% if category == 'success' %}
+                    <div style="background-color: #d1fae5; border: 3px solid #10b981; color: #065f46; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;" role="alert">
+                        <div style="display: flex; align-items: center;">
+                            <i class="fas fa-check-circle" style="font-size: 1.5rem; margin-right: 1rem; color: #10b981;"></i>
+                            <div style="flex: 1;">
+                                <strong style="font-size: 1.1rem;">{{ message }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    {% elif category == 'error' %}
+                    <div style="background-color: #fee2e2; border: 3px solid #ef4444; color: #991b1b; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;" role="alert">
+                        <div style="display: flex; align-items: center;">
+                            <i class="fas fa-exclamation-circle" style="font-size: 1.5rem; margin-right: 1rem; color: #ef4444;"></i>
+                            <div style="flex: 1;">
+                                <strong style="font-size: 1.1rem;">{{ message }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div style="background-color: #dbeafe; border: 3px solid #3b82f6; color: #1e40af; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;" role="alert">
+                        <div style="display: flex; align-items: center;">
+                            <i class="fas fa-info-circle" style="font-size: 1.5rem; margin-right: 1rem; color: #3b82f6;"></i>
+                            <div style="flex: 1;">
+                                <strong style="font-size: 1.1rem;">{{ message }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="grid md:grid-cols-2 gap-8">
+            <!-- Update Name Card -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="border-b border-gray-200 pb-4 mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                        <i class="fas fa-user text-primary mr-3"></i>
+                        Update Name
+                    </h2>
+                    <p class="text-gray-600 text-sm mt-1">Change your display name</p>
+                </div>
+                
+                <form method="POST" class="space-y-4">
+                    <input type="hidden" name="update_name" value="true">
+                    
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-signature mr-2"></i>Full Name
+                        </label>
+                        <input type="text" 
+                               id="name" 
+                               name="name" 
+                               value="{{ user.name }}"
+                               required 
+                               minlength="2"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                               placeholder="Enter your full name">
+                    </div>
+                    
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <p class="text-xs text-blue-700">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Your name will be updated across all orders and account information.
+                        </p>
+                    </div>
+                    
+                    <button type="submit" 
+                            class="w-full gold-gradient text-primary px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
+                        <i class="fas fa-save mr-2"></i>Update Name
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Update Password Card -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="border-b border-gray-200 pb-4 mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                        <i class="fas fa-lock text-primary mr-3"></i>
+                        Change Password
+                    </h2>
+                    <p class="text-gray-600 text-sm mt-1">Update your password</p>
+                </div>
+                
+                <form method="POST" class="space-y-4">
+                    <input type="hidden" name="update_password" value="true">
+                    
+                    <div>
+                        <label for="current_password" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-key mr-2"></i>Current Password
+                        </label>
+                        <div class="relative">
+                            <input type="password" 
+                                   id="current_password" 
+                                   name="current_password" 
+                                   required 
+                                   class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                                   placeholder="Enter current password">
+                            <button type="button" 
+                                    onclick="togglePassword('current_password')" 
+                                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-eye" id="current_password-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="new_password" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-lock mr-2"></i>New Password
+                        </label>
+                        <div class="relative">
+                            <input type="password" 
+                                   id="new_password" 
+                                   name="new_password" 
+                                   required 
+                                   minlength="8"
+                                   class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                                   placeholder="Create a strong password"
+                                   oninput="checkPasswordStrength()">
+                            <button type="button" 
+                                    onclick="togglePassword('new_password')" 
+                                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-eye" id="new_password-eye"></i>
+                            </button>
+                        </div>
+                        <div id="password-strength" class="mt-2 hidden">
+                            <div class="flex items-center gap-2">
+                                <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                    <div id="strength-bar" class="h-full transition-all duration-300" style="width: 0%"></div>
+                                </div>
+                                <span id="strength-text" class="text-sm font-semibold"></span>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-1">
+                                <i class="fas fa-info-circle mr-1"></i>Password must contain: 
+                                <span id="req-length" class="text-red-500">✗ 8+ chars</span>, 
+                                <span id="req-upper" class="text-red-500">✗ upper</span>, 
+                                <span id="req-lower" class="text-red-500">✗ lower</span>, 
+                                <span id="req-number" class="text-red-500">✗ number</span>, 
+                                <span id="req-special" class="text-red-500">✗ special</span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-check-circle mr-2"></i>Confirm New Password
+                        </label>
+                        <div class="relative">
+                            <input type="password" 
+                                   id="confirm_password" 
+                                   name="confirm_password" 
+                                   required 
+                                   class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                                   placeholder="Re-enter your password"
+                                   oninput="checkPasswordMatch()">
+                            <button type="button" 
+                                    onclick="togglePassword('confirm_password')" 
+                                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-eye" id="confirm_password-eye"></i>
+                            </button>
+                        </div>
+                        <p id="password-match" class="text-xs mt-1 hidden">
+                            <i class="fas fa-check-circle text-green-600 mr-1"></i>
+                            <span class="text-green-600">Passwords match!</span>
+                        </p>
+                        <p id="password-mismatch" class="text-xs mt-1 hidden">
+                            <i class="fas fa-times-circle text-red-500 mr-1"></i>
+                            <span class="text-red-500">Passwords do not match</span>
+                        </p>
+                    </div>
+                    
+                    <button type="submit" 
+                            class="w-full gold-gradient text-primary px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
+                        <i class="fas fa-save mr-2"></i>Update Password
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Account Information Card -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mt-8">
+            <div class="border-b border-gray-200 pb-4 mb-6">
+                <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                    <i class="fas fa-info-circle text-primary mr-3"></i>
+                    Account Information
+                </h2>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                    <div class="bg-primary text-white rounded-full p-3 mr-4">
+                        <i class="fas fa-user text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Full Name</p>
+                        <p class="text-lg font-semibold text-gray-900">{{ user.name }}</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                    <div class="bg-primary text-white rounded-full p-3 mr-4">
+                        <i class="fas fa-envelope text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Email Address</p>
+                        <p class="text-lg font-semibold text-gray-900">{{ user.email }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div class="flex items-start">
+                    <i class="fas fa-shield-alt text-blue-600 text-2xl mr-3 mt-1"></i>
+                    <div>
+                        <p class="font-semibold text-blue-800">Security Note</p>
+                        <p class="text-sm text-blue-700 mt-1">
+                            Email address cannot be changed. If you need to update your email, 
+                            please contact our support team.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="mt-8 flex justify-center gap-4">
+            <a href="{{ url_for('orders') }}" 
+               class="bg-primary hover:bg-secondary text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 flex items-center">
+                <i class="fas fa-shopping-bag mr-2"></i>My Orders
+            </a>
+            <a href="{{ url_for('index') }}" 
+               class="bg-gray-500 hover:bg-gray-600 text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 flex items-center">
+                <i class="fas fa-home mr-2"></i>Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+// Toggle password visibility
+function togglePassword(fieldId) {
+    const passwordField = document.getElementById(fieldId);
+    const eyeIcon = document.getElementById(fieldId + '-eye');
+    
+    if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        eyeIcon.classList.remove('fa-eye');
+        eyeIcon.classList.add('fa-eye-slash');
+    } else {
+        passwordField.type = 'password';
+        eyeIcon.classList.remove('fa-eye-slash');
+        eyeIcon.classList.add('fa-eye');
+    }
+}
+
+// Check password strength
+function checkPasswordStrength() {
+    const password = document.getElementById('new_password').value;
+    const strengthBar = document.getElementById('strength-bar');
+    const strengthText = document.getElementById('strength-text');
+    const strengthDiv = document.getElementById('password-strength');
+    
+    if (password.length === 0) {
+        strengthDiv.classList.add('hidden');
+        return;
+    }
+    
+    strengthDiv.classList.remove('hidden');
+    
+    let strength = 0;
+    const checks = {
+        length: password.length >= 8,
+        upper: /[A-Z]/.test(password),
+        lower: /[a-z]/.test(password),
+        number: /[0-9]/.test(password),
+        special: /[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\\/;'`~]/.test(password)
+    };
+    
+    // Update requirement indicators
+    updateRequirement('req-length', checks.length);
+    updateRequirement('req-upper', checks.upper);
+    updateRequirement('req-lower', checks.lower);
+    updateRequirement('req-number', checks.number);
+    updateRequirement('req-special', checks.special);
+    
+    // Calculate strength
+    if (checks.length) strength += 20;
+    if (checks.upper) strength += 20;
+    if (checks.lower) strength += 20;
+    if (checks.number) strength += 20;
+    if (checks.special) strength += 20;
+    
+    // Update UI
+    strengthBar.style.width = strength + '%';
+    
+    if (strength < 40) {
+        strengthBar.style.backgroundColor = '#ef4444';
+        strengthText.textContent = 'Weak';
+        strengthText.style.color = '#ef4444';
+    } else if (strength < 80) {
+        strengthBar.style.backgroundColor = '#f59e0b';
+        strengthText.textContent = 'Medium';
+        strengthText.style.color = '#f59e0b';
+    } else {
+        strengthBar.style.backgroundColor = '#10b981';
+        strengthText.textContent = 'Strong';
+        strengthText.style.color = '#10b981';
+    }
+}
+
+function updateRequirement(id, isMet) {
+    const element = document.getElementById(id);
+    if (isMet) {
+        element.className = 'text-green-600';
+        element.innerHTML = element.innerHTML.replace('✗', '✓');
+    } else {
+        element.className = 'text-red-500';
+        element.innerHTML = element.innerHTML.replace('✓', '✗');
+    }
+}
+
+// Check if passwords match
+function checkPasswordMatch() {
+    const password = document.getElementById('new_password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    const matchMsg = document.getElementById('password-match');
+    const mismatchMsg = document.getElementById('password-mismatch');
+    
+    if (confirmPassword.length === 0) {
+        matchMsg.classList.add('hidden');
+        mismatchMsg.classList.add('hidden');
+        return;
+    }
+    
+    if (password === confirmPassword) {
+        matchMsg.classList.remove('hidden');
+        mismatchMsg.classList.add('hidden');
+    } else {
+        matchMsg.classList.add('hidden');
+        mismatchMsg.classList.remove('hidden');
+    }
+}
+
+// Validate form before submission
+const forms = document.querySelectorAll('form');
+forms.forEach(form => {
+    form.addEventListener('submit', function(e) {
+        const newPasswordField = document.getElementById('new_password');
+        const confirmPasswordField = document.getElementById('confirm_password');
+        
+        if (newPasswordField && confirmPasswordField && this.contains(newPasswordField)) {
+            const password = newPasswordField.value;
+            const confirmPassword = confirmPasswordField.value;
+            
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                alert('Passwords do not match!');
+                return false;
+            }
+            
+            // Check password strength
+            const checks = {
+                length: password.length >= 8,
+                upper: /[A-Z]/.test(password),
+                lower: /[a-z]/.test(password),
+                number: /[0-9]/.test(password),
+                special: /[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\\/;'`~]/.test(password)
+            };
+            
+            if (!checks.length || !checks.upper || !checks.lower || !checks.number || !checks.special) {
+                e.preventDefault();
+                alert('Password must be at least 8 characters and contain uppercase, lowercase, number, and special character!');
+                return false;
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
+

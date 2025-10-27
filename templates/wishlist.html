@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Wishlist Page -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Header -->
+    <div class="mb-12">
+        <h1 class="text-4xl font-serif font-bold text-gray-900 mb-2">My Wishlist</h1>
+        <p class="text-gray-600">Save your favorite items for later</p>
+    </div>
+
+    {% if wishlist_items %}
+    <!-- Wishlist Items Count -->
+    <div class="mb-6">
+        <p class="text-lg text-gray-700">
+            <i class="fas fa-heart text-red-500 mr-2"></i>
+            <span class="font-semibold">{{ wishlist_items|length }}</span> item{% if wishlist_items|length != 1 %}s{% endif %} in your wishlist
+        </p>
+    </div>
+
+    <!-- Wishlist Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {% for item in wishlist_items %}
+        <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group transform hover:-translate-y-1">
+            <!-- Product Image -->
+            <div class="relative h-72 overflow-hidden">
+                {% set image = item[4].split(',')[0] if item[4] else 'tshirt.jpg' %}
+                <a href="{{ url_for('amazon_product_page', product_id=item[1]) }}">
+                    <img src="{{ url_for('static', filename='images/' + image) }}" 
+                         alt="{{ item[2] }}"
+                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                </a>
+                
+                <!-- Remove from Wishlist Button -->
+                <button onclick="removeFromWishlist({{ item[1] }})" 
+                        class="absolute top-3 right-3 bg-white bg-opacity-90 hover:bg-opacity-100 w-10 h-10 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 z-10">
+                    <i class="fas fa-heart text-red-500 text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Product Info -->
+            <div class="p-5">
+                <a href="{{ url_for('amazon_product_page', product_id=item[1]) }}" class="block">
+                    <h3 class="font-semibold text-lg text-gray-900 mb-2 line-clamp-2 hover:text-yellow-600 transition-colors">
+                        {{ item[2] }}
+                    </h3>
+                    <p class="text-sm text-gray-600 mb-3">{{ item[5] }}</p>
+                    <p class="text-2xl font-bold text-gray-900 mb-4">₹{{ "%.0f"|format(item[3]) }}</p>
+                </a>
+                
+                <!-- Add to Cart Button -->
+                <form method="POST" action="{{ url_for('add_to_cart') }}" class="space-y-3">
+                    <input type="hidden" name="product_id" value="{{ item[1] }}">
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit" 
+                            class="w-full bg-gray-900 text-white px-4 py-3 rounded-lg hover:bg-gray-800 transition-all duration-300 font-semibold flex items-center justify-center shadow-md hover:shadow-lg">
+                        <i class="fas fa-shopping-bag mr-2"></i>
+                        Add to Cart
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <!-- Empty Wishlist State -->
+    <div class="text-center py-20">
+        <div class="inline-block p-8 bg-gray-50 rounded-full mb-6">
+            <i class="far fa-heart text-6xl text-gray-400"></i>
+        </div>
+        <h2 class="text-3xl font-serif font-bold text-gray-900 mb-4">Your Wishlist is Empty</h2>
+        <p class="text-gray-600 mb-8 max-w-md mx-auto">
+            Start adding products to your wishlist by clicking the heart icon on any product!
+        </p>
+        <a href="{{ url_for('products') }}" 
+           class="inline-flex items-center bg-gray-900 text-white px-8 py-3 rounded-lg hover:bg-gray-800 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl">
+            <i class="fas fa-shopping-bag mr-2"></i>
+            Browse Products
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// Remove item from wishlist
+function removeFromWishlist(productId) {
+    if (confirm('Remove this item from your wishlist?')) {
+        fetch('{{ url_for("toggle_wishlist") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ product_id: productId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Reload the page to show updated wishlist
+            window.location.reload();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Something went wrong. Please try again.');
+        });
+    }
+}
+</script>
+
+<style>
+/* Line clamp utility for text truncation */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+</style>
+{% endblock %}
+

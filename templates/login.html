@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Textile Store{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
+    <div class="max-w-md w-full">
+        <div class="bg-white rounded-lg shadow-xl p-8">
+            <div class="text-center mb-8">
+                <i class="fas fa-sign-in-alt text-5xl text-primary mb-4"></i>
+                <h2 class="text-3xl font-bold text-gray-900">Login</h2>
+                <p class="text-gray-600 mt-2">Sign in to your account</p>
+            </div>
+            
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        {% if category == 'success' %}
+                        <div style="background-color: #d1fae5; border: 3px solid #10b981; color: #065f46; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;" role="alert">
+                            <div style="display: flex; align-items: center;">
+                                <i class="fas fa-check-circle" style="font-size: 1.5rem; margin-right: 1rem; color: #10b981;"></i>
+                                <div style="flex: 1;">
+                                    <strong style="font-size: 1.1rem; display: block; white-space: pre-line;">{{ message }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        {% elif category == 'error' %}
+                        <div style="background-color: #fee2e2; border: 3px solid #ef4444; color: #991b1b; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;" role="alert">
+                            <div style="display: flex; align-items: center;">
+                                <i class="fas fa-exclamation-circle" style="font-size: 1.5rem; margin-right: 1rem; color: #ef4444;"></i>
+                                <div style="flex: 1;">
+                                    <strong style="font-size: 1.1rem;">{{ message }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div style="background-color: #dbeafe; border: 3px solid #3b82f6; color: #1e40af; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;" role="alert">
+                            <div style="display: flex; align-items: center;">
+                                <i class="fas fa-info-circle" style="font-size: 1.5rem; margin-right: 1rem; color: #3b82f6;"></i>
+                                <div style="flex: 1;">
+                                    <strong style="font-size: 1.1rem;">{{ message }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST" class="space-y-6">
+                {% if not show_otp_field %}
+                <!-- Step 1: Enter credentials -->
+                <input type="hidden" name="send_otp" value="true">
+                
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-envelope mr-2"></i>Email Address
+                    </label>
+                    <input type="email" 
+                           id="email" 
+                           name="email" 
+                           required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                           placeholder="Enter your email">
+                </div>
+                
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-lock mr-2"></i>Password
+                    </label>
+                    <div class="relative">
+                        <input type="password" 
+                               id="password" 
+                               name="password" 
+                               required 
+                               class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                               placeholder="Enter your password">
+                        <button type="button" 
+                                onclick="togglePassword('password')" 
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-eye" id="password-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <p class="text-xs text-blue-700 flex items-center">
+                        <i class="fas fa-shield-alt mr-2"></i>
+                        <span>OTP verification required for regular users. Admin login bypasses OTP.</span>
+                    </p>
+                </div>
+                
+                <div>
+                    <button type="submit" 
+                            class="w-full gold-gradient text-primary px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Continue to Login
+                    </button>
+                </div>
+                
+                <div class="text-center">
+                    <a href="{{ url_for('forgot_password') }}" 
+                       class="text-sm text-primary hover:text-accent font-medium transition-colors">
+                        <i class="fas fa-key mr-1"></i>Forgot Password?
+                    </a>
+                </div>
+                
+                {% else %}
+                <!-- Step 2: Enter OTP -->
+                <input type="hidden" name="verify_otp" value="true">
+                
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle text-green-600 text-2xl mr-3"></i>
+                        <div>
+                            <p class="font-semibold text-green-800">OTP Sent!</p>
+                            <p class="text-sm text-green-600">Check your email: {{ email }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="otp" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-key mr-2"></i>Enter OTP
+                    </label>
+                    <input type="text" 
+                           id="otp" 
+                           name="otp" 
+                           required 
+                           maxlength="6"
+                           pattern="[0-9]{6}"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-center text-2xl font-bold tracking-widest"
+                           placeholder="000000"
+                           autofocus>
+                    <p class="text-xs text-gray-500 mt-1 text-center">
+                        <i class="fas fa-clock mr-1"></i>OTP valid for 5 minutes
+                    </p>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button type="submit" 
+                            class="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
+                        <i class="fas fa-check mr-2"></i>Verify & Login
+                    </button>
+                    <a href="{{ url_for('login') }}" 
+                       class="flex-none bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center">
+                        <i class="fas fa-redo mr-2"></i>Resend
+                    </a>
+                </div>
+                {% endif %}
+            </form>
+            
+            <div class="mt-8 pt-6 border-t border-gray-200">
+                <p class="text-center text-gray-600 mb-4">Don't have an account?</p>
+                <a href="{{ url_for('register') }}" 
+                   class="block w-full text-center gold-gradient text-primary px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                    <i class="fas fa-user-plus mr-2"></i>Register Here
+                </a>
+            </div>
+            
+            <div class="mt-6 p-4 bg-accent/10 rounded-lg border border-accent/30">
+                <h6 class="font-semibold text-gray-700 mb-2">Demo Admin Account:</h6>
+                <p class="text-sm text-gray-600">
+                    <strong>Email:</strong> admin@textile.com<br>
+                    <strong>Password:</strong> admin123
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Toggle password visibility
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const icon = document.getElementById(fieldId + '-eye');
+    
+    if (field.type === 'password') {
+        field.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        field.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+</script>
+{% endblock %}

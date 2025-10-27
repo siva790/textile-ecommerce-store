@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block title %}Shopping Cart - LUXE TEXTILE{% endblock %}
+
+{% block content %}
+<!-- Luxurious Shopping Cart -->
+<div class="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Page Header -->
+        <div class="mb-10">
+            <h1 class="text-4xl font-serif font-bold text-gray-900 mb-2">Shopping Cart</h1>
+            <p class="text-gray-600">Review your selected items</p>
+        </div>
+        
+        {% if cart_items %}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Cart Items Section -->
+            <div class="lg:col-span-2 space-y-4">
+                {% for item in cart_items %}
+                <div class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100">
+                    <div class="p-6">
+                        <div class="flex flex-col md:flex-row gap-6">
+                            <!-- Product Image -->
+                            <div class="flex-shrink-0">
+                                {% set images = item[4].split(',') if item[4] else ['tshirt.jpg'] %}
+                                <div class="w-full md:w-32 h-40 rounded-xl overflow-hidden bg-gray-50 border-2 border-gray-200">
+                                    <img src="{{ url_for('static', filename='images/' + images[0].strip()) }}" 
+                                         alt="{{ item[1] }}" 
+                                         class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                                </div>
+                            </div>
+                            
+                            <!-- Product Details -->
+                            <div class="flex-1 flex flex-col justify-between">
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-900 mb-2">{{ item[1] }}</h3>
+                                    <p class="text-sm text-gray-500 mb-4">Product ID: #{{ item[5] }}</p>
+                                    
+                                    <div class="flex items-center gap-6 mb-4">
+                                        <!-- Price -->
+                                        <div>
+                                            <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Unit Price</p>
+                                            <p class="text-lg font-bold text-gray-900">₹{{ "%.0f"|format(item[2]) }}</p>
+                                        </div>
+                                        
+                                        <!-- Quantity -->
+                                        <div>
+                                            <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Quantity</p>
+                                            <div class="inline-flex items-center justify-center bg-gray-900 text-white px-4 py-1.5 rounded-full">
+                                                <span class="font-bold">{{ item[3] }}</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Subtotal -->
+                                        <div>
+                                            <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Subtotal</p>
+                                            <p class="text-xl font-bold text-yellow-600">₹{{ "%.0f"|format(item[2] * item[3]) }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Remove Button -->
+                                <div class="flex justify-end">
+                                    <form method="POST" action="{{ url_for('remove_from_cart') }}" class="inline">
+                                        <input type="hidden" name="cart_id" value="{{ item[0] }}">
+                                        <button type="submit" 
+                                                onclick="return confirm('Remove this item from cart?')"
+                                                class="inline-flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 px-4 py-2 rounded-lg transition-all duration-200 font-medium">
+                                            <i class="fas fa-trash-alt"></i>
+                                            <span>Remove</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <!-- Continue Shopping Link -->
+                <div class="mt-6">
+                    <a href="{{ url_for('products') }}" 
+                       class="inline-flex items-center text-gray-700 hover:text-yellow-600 font-medium transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        <span>Continue Shopping</span>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Order Summary Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="sticky top-24">
+                    <!-- Summary Card -->
+                    <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl overflow-hidden">
+                        <div class="p-8">
+                            <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+                                <i class="fas fa-receipt mr-3 text-yellow-500"></i>
+                                Order Summary
+                            </h2>
+                            
+                            <div class="space-y-4 mb-6">
+                                <!-- Subtotal -->
+                                <div class="flex justify-between items-center py-3 border-b border-gray-700">
+                                    <span class="text-gray-300 font-medium">Subtotal</span>
+                                    <span class="text-white font-bold text-lg">₹{{ "%.0f"|format(total) }}</span>
+                                </div>
+                                
+                                <!-- Shipping -->
+                                <div class="flex justify-between items-center py-3 border-b border-gray-700">
+                                    <span class="text-gray-300 font-medium">Shipping</span>
+                                    <span class="text-green-400 font-bold flex items-center">
+                                        <i class="fas fa-check-circle mr-2 text-sm"></i>
+                                        FREE
+                                    </span>
+                                </div>
+                                
+                                <!-- Tax -->
+                                <div class="flex justify-between items-center py-3 border-b border-gray-700">
+                                    <span class="text-gray-300 font-medium">Tax (GST)</span>
+                                    <span class="text-white font-semibold">Included</span>
+                                </div>
+                                
+                                <!-- Total -->
+                                <div class="flex justify-between items-center py-4 bg-yellow-500 bg-opacity-10 rounded-xl px-4 mt-6">
+                                    <span class="text-yellow-500 font-bold text-lg uppercase tracking-wide">Total</span>
+                                    <span class="text-yellow-500 font-bold text-3xl">₹{{ "%.0f"|format(total) }}</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Checkout Button -->
+                            <a href="{{ url_for('checkout') }}" 
+                               class="block w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-6 py-4 rounded-xl font-bold text-center transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl mb-4">
+                                <i class="fas fa-lock mr-2"></i>
+                                Proceed to Checkout
+                            </a>
+                            
+                            <!-- Security Badge -->
+                            <div class="text-center">
+                                <div class="inline-flex items-center text-gray-400 text-xs">
+                                    <i class="fas fa-shield-alt mr-2"></i>
+                                    <span>Secure Checkout</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Benefits Card -->
+                    <div class="mt-6 bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+                        <h3 class="font-bold text-gray-900 mb-4 flex items-center">
+                            <i class="fas fa-gift mr-2 text-yellow-600"></i>
+                            Shopping Benefits
+                        </h3>
+                        <ul class="space-y-3 text-sm text-gray-600">
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-600 mr-3 mt-1"></i>
+                                <span>Free shipping on all orders</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-600 mr-3 mt-1"></i>
+                                <span>Easy 30-day returns</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-600 mr-3 mt-1"></i>
+                                <span>100% authentic products</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-600 mr-3 mt-1"></i>
+                                <span>Secure payment options</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- Empty Cart State -->
+        <div class="text-center py-20">
+            <div class="mb-8">
+                <div class="inline-flex items-center justify-center w-32 h-32 bg-gray-100 rounded-full mb-6">
+                    <i class="fas fa-shopping-cart text-6xl text-gray-400"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-900 mb-3">Your Cart is Empty</h2>
+                <p class="text-gray-600 text-lg mb-8">Looks like you haven't added anything to your cart yet</p>
+            </div>
+            
+            <a href="{{ url_for('products') }}" 
+               class="inline-flex items-center bg-gray-900 hover:bg-yellow-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                <i class="fas fa-shopping-bag mr-3"></i>
+                Start Shopping
+            </a>
+            
+            <!-- Popular Categories -->
+            <div class="mt-16 max-w-4xl mx-auto">
+                <h3 class="text-xl font-bold text-gray-900 mb-6">Popular Categories</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <a href="{{ url_for('products', gender='Men') }}" class="bg-white rounded-xl shadow-md hover:shadow-xl transition-all p-6 border-2 border-transparent hover:border-yellow-500">
+                        <i class="fas fa-male text-4xl text-gray-700 mb-3"></i>
+                        <h4 class="font-bold text-gray-900">Men's Collection</h4>
+                    </a>
+                    <a href="{{ url_for('products', gender='Women') }}" class="bg-white rounded-xl shadow-md hover:shadow-xl transition-all p-6 border-2 border-transparent hover:border-yellow-500">
+                        <i class="fas fa-female text-4xl text-gray-700 mb-3"></i>
+                        <h4 class="font-bold text-gray-900">Women's Collection</h4>
+                    </a>
+                    <a href="{{ url_for('products', gender='Boys') }}" class="bg-white rounded-xl shadow-md hover:shadow-xl transition-all p-6 border-2 border-transparent hover:border-yellow-500">
+                        <i class="fas fa-child text-4xl text-gray-700 mb-3"></i>
+                        <h4 class="font-bold text-gray-900">Kids Collection</h4>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

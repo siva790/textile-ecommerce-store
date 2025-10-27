@@ -1,0 +1,24 @@
+# Image Placeholders
+
+This directory should contain product images. For the demo, you can use these placeholder images:
+
+1. tshirt.jpg - Cotton T-Shirt image
+2. scarf.jpg - Silk Scarf image  
+3. jeans.jpg - Denim Jeans image
+4. sweater.jpg - Wool Sweater image
+5. fabric.jpg - Cotton Fabric image
+6. jacket.jpg - Leather Jacket image
+7. default.jpg - Default product image
+8. hero-textile.jpg - Hero section background image
+
+You can download free stock images from:
+- Unsplash.com
+- Pexels.com
+- Pixabay.com
+
+Recommended image sizes:
+- Product images: 400x400px
+- Hero image: 800x600px
+- All images should be optimized for web (JPEG format, compressed)
+
+

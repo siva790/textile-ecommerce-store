@@ -1,0 +1,514 @@
+{% extends "base.html" %}
+
+{% block title %}Products - Textile Store{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Luxurious Horizontal Filter Bar -->
+    <form method="GET" class="mb-10 overflow-x-auto">
+        <input type="hidden" name="gender" value="{{ selected_gender }}">
+        <div class="bg-gradient-to-r from-white via-gray-50 to-white rounded-2xl shadow-lg border-2 border-gray-200/60 p-6 backdrop-blur-sm min-w-max">
+            <div class="flex items-center justify-between gap-6">
+                <!-- All filters in one line -->
+                <div class="flex items-center gap-4">
+                    <!-- Category Dropdown -->
+                    <div class="relative group">
+                        <select name="category" 
+                                class="appearance-none bg-white border-2 border-gray-300 rounded-xl pl-5 pr-11 py-3 text-sm font-medium text-gray-800 hover:border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 cursor-pointer min-w-[160px] transition-all duration-300 shadow-sm hover:shadow-md"
+                                onchange="this.form.submit()">
+                            <option value="">Category</option>
+                            {% for category in categories %}
+                            <option value="{{ category }}" {% if category == selected_category %}selected{% endif %}>
+                                {{ category }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <i class="fas fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 group-hover:text-yellow-600 pointer-events-none transition-colors duration-300"></i>
+                    </div>
+
+                    <!-- Price Dropdown -->
+                    <div class="relative group">
+                        <select name="price_range" 
+                                class="appearance-none bg-white border-2 border-gray-300 rounded-xl pl-5 pr-11 py-3 text-sm font-medium text-gray-800 hover:border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 cursor-pointer min-w-[160px] transition-all duration-300 shadow-sm hover:shadow-md"
+                                onchange="this.form.submit()">
+                            <option value="">Price</option>
+                            <option value="0-500" {% if selected_price_range == '0-500' %}selected{% endif %}>Under ₹500</option>
+                            <option value="500-1000" {% if selected_price_range == '500-1000' %}selected{% endif %}>₹500 - ₹1000</option>
+                            <option value="1000-2000" {% if selected_price_range == '1000-2000' %}selected{% endif %}>₹1000 - ₹2000</option>
+                            <option value="2000-5000" {% if selected_price_range == '2000-5000' %}selected{% endif %}>₹2000 - ₹5000</option>
+                            <option value="5000+" {% if selected_price_range == '5000+' %}selected{% endif %}>Above ₹5000</option>
+                        </select>
+                        <i class="fas fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 group-hover:text-yellow-600 pointer-events-none transition-colors duration-300"></i>
+                    </div>
+
+                    <!-- Color Dropdown -->
+                    <div class="relative group">
+                        <select name="color" 
+                                class="appearance-none bg-white border-2 border-gray-300 rounded-xl pl-5 pr-11 py-3 text-sm font-medium text-gray-800 hover:border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 cursor-pointer min-w-[160px] transition-all duration-300 shadow-sm hover:shadow-md"
+                                onchange="this.form.submit()">
+                            <option value="">Color</option>
+                            {% if colors %}
+                                {% for color in colors %}
+                                <option value="{{ color }}" {% if color == selected_color %}selected{% endif %}>
+                                    {{ color }}
+                                </option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                        <i class="fas fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 group-hover:text-yellow-600 pointer-events-none transition-colors duration-300"></i>
+                    </div>
+
+                    <!-- Size Dropdown -->
+                    {% if sizes %}
+                    <div class="relative group">
+                        <select name="size" 
+                                class="appearance-none bg-white border-2 border-gray-300 rounded-xl pl-5 pr-11 py-3 text-sm font-medium text-gray-800 hover:border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 cursor-pointer min-w-[160px] transition-all duration-300 shadow-sm hover:shadow-md"
+                                onchange="this.form.submit()">
+                            <option value="">Size</option>
+                            {% for size in sizes %}
+                            <option value="{{ size }}" {% if size == selected_size %}selected{% endif %}>
+                                {{ size }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <i class="fas fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 group-hover:text-yellow-600 pointer-events-none transition-colors duration-300"></i>
+                    </div>
+                    {% endif %}
+
+                    <!-- Product count -->
+                    <div class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-lg border border-yellow-200 ml-6">
+                        <span class="text-sm font-bold text-gray-900">{{ products|length }}</span>
+                        <span class="text-sm font-medium text-gray-600">Results</span>
+                    </div>
+
+                    <!-- Sort dropdown -->
+                    <div class="relative group">
+                        <select name="sort" 
+                                class="appearance-none bg-white border-2 border-gray-300 rounded-xl pl-5 pr-11 py-3 text-sm font-medium text-gray-800 hover:border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 cursor-pointer min-w-[160px] transition-all duration-300 shadow-sm hover:shadow-md"
+                                onchange="this.form.submit()">
+                            <option value="">Sort</option>
+                            <option value="name_asc" {% if selected_sort == 'name_asc' %}selected{% endif %}>Name: A-Z</option>
+                            <option value="name_desc" {% if selected_sort == 'name_desc' %}selected{% endif %}>Name: Z-A</option>
+                            <option value="price_asc" {% if selected_sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                            <option value="price_desc" {% if selected_sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                            <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>Newest First</option>
+                        </select>
+                        <i class="fas fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 group-hover:text-yellow-600 pointer-events-none transition-colors duration-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- Products Grid -->
+    <div class="w-full">
+        {% if products %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {% for product in products %}
+                <div id="product-{{ product[0] }}-{{ product[9].split(',')[0] if product[9] else 'default' }}" 
+                     class="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col product-card cursor-pointer transform hover:scale-105"
+                     data-product-id="{{ product[0] }}"
+                     data-color="{{ product[9].split(',')[0] if product[9] else 'default' }}"
+                     data-product-url="{{ url_for('amazon_product_page', product_id=product[0]) }}"
+                     role="button">
+
+                    {% set all_images = product[6].split(',') if product[6] else ['tshirt.jpg'] %}
+                    {% set images = [] %}
+                    {% for img in all_images %}
+                        {% if img.strip() not in images %}
+                            {% set _ = images.append(img.strip()) %}
+                        {% endif %}
+                    {% endfor %}
+                    <div class="relative h-64 overflow-hidden group">
+                        {% if images|length > 1 %}
+                        <!-- Image Carousel for Multiple Images -->
+                        <div class="image-carousel-{{ product[0] }} w-full h-full">
+                            <img src="{{ url_for('static', filename='images/' + images[0]) }}" 
+                                 class="w-full h-full object-cover" 
+                                 alt="{{ product[1] }}">
+                        </div>
+                        <!-- Navigation Buttons -->
+                        <button data-product-id="{{ product[0] }}" 
+                                data-direction="-1"
+                                class="carousel-nav-btn absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-20"
+                                onclick="event.stopPropagation();">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button data-product-id="{{ product[0] }}" 
+                                data-direction="1"
+                                class="carousel-nav-btn absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-20"
+                                onclick="event.stopPropagation();">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <!-- Image Counter -->
+                        <span class="absolute bottom-2 right-2 bg-black bg-opacity-60 text-white px-2 py-1 rounded text-xs">
+                            <i class="fas fa-images mr-1"></i><span class="image-counter-{{ product[0] }}">1</span>/{{ images|length }}
+                        </span>
+                        <!-- Image Data -->
+                        <div class="hidden image-data-{{ product[0] }}">{{ ','.join(images) }}</div>
+                        {% else %}
+                        <!-- Single Image -->
+                        <img src="{{ url_for('static', filename='images/' + images[0]) }}" 
+                             class="w-full h-full object-cover hover:scale-110 transition-transform duration-300" 
+                             alt="{{ product[1] }}">
+                        {% endif %}
+                        {% if product[10] %}
+                        <span class="absolute top-2 left-2 bg-primary text-white px-3 py-1 rounded-full text-xs font-semibold z-10">
+                            {{ product[10] }}
+                        </span>
+                        {% endif %}
+                        <!-- Wishlist Button -->
+                        {% if session.user_id %}
+                        <button type="button"
+                                data-product-id="{{ product[0] }}"
+                                class="wishlist-card-btn absolute top-2 right-2 bg-white bg-opacity-90 hover:bg-opacity-100 w-10 h-10 rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 z-10 transform hover:scale-110"
+                                id="wishlistCardBtn-{{ product[0] }}">
+                            <i class="far fa-heart text-lg" id="wishlistCardIcon-{{ product[0] }}" style="color: #374151;"></i>
+                        </button>
+                        {% endif %}
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <div class="flex justify-between items-start mb-2">
+                            <h5 class="text-xl font-semibold text-gray-900 flex-1">{{ product[1] }}</h5>
+                        </div>
+                        <p class="text-sm text-gray-500 mb-2">{{ product[2] }}{% if product[3] %} - {{ product[3] }}{% endif %}</p>
+                        <p class="text-gray-600 mb-4 flex-grow">{{ product[5] }}</p>
+                        
+                        <!-- Sizes Available -->
+                        {% if product[8] %}
+                        <div class="mb-3">
+                            <p class="text-xs font-semibold text-gray-700 mb-2">Available Sizes:</p>
+                            <div class="flex flex-wrap gap-1">
+                                {% for size in product[8].split(',')[:5] %}
+                                <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">{{ size }}</span>
+                                {% endfor %}
+                                {% if product[8].split(',')|length > 5 %}
+                                <span class="text-xs text-gray-500">+more</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-2xl font-bold text-primary">₹{{ "%.2f"|format(product[4]) }}</span>
+                            <small class="text-gray-500">Stock: {{ product[7] }}</small>
+                        </div>
+                        {% if session.user_id %}
+                        <form method="POST" action="{{ url_for('add_to_cart') }}" onclick="event.stopPropagation();">
+                            <input type="hidden" name="product_id" value="{{ product[0] }}">
+                            <div class="flex gap-2">
+                                <input type="number" 
+                                       name="quantity" 
+                                       value="1" 
+                                       min="1" 
+                                       max="{{ product[7] }}"
+                                       class="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <button type="submit" 
+                                        class="flex-1 bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary transition-colors flex items-center justify-center">
+                                    <i class="fas fa-cart-plus mr-2"></i>Add
+                                </button>
+                            </div>
+                        </form>
+                        {% else %}
+                        <a href="{{ url_for('login') }}" 
+                           onclick="event.stopPropagation();"
+                           class="block w-full text-center gold-gradient text-primary px-4 py-2 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Login to Buy
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-16">
+            <i class="fas fa-search text-6xl text-gray-400 mb-4"></i>
+            <h4 class="text-2xl font-semibold text-gray-600 mb-2">No products found</h4>
+            <p class="text-gray-500 mb-6">Try adjusting your filters or browse all products.</p>
+            <a href="{{ url_for('products') }}" 
+               class="inline-flex items-center bg-primary text-white px-6 py-3 rounded-lg hover:bg-secondary transition-colors">
+                View All Products
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if session.user_id %}
+<script id="app-config" type="application/json">
+{
+    "isUserLoggedIn": true,
+    "wishlistStatusUrl": "{{ url_for('get_wishlist_status', product_id=0) }}",
+    "toggleWishlistUrl": "{{ url_for('toggle_wishlist') }}"
+}
+</script>
+{% else %}
+<script id="app-config" type="application/json">
+{
+    "isUserLoggedIn": false,
+    "wishlistStatusUrl": null,
+    "toggleWishlistUrl": null
+}
+</script>
+{% endif %}
+
+<script>
+// Load configuration
+var APP_CONFIG = JSON.parse(document.getElementById('app-config').textContent);
+
+// Image carousel functionality
+const productImages = {};
+
+// Initialize image data for each product
+document.querySelectorAll('[class^="image-data-"]').forEach(el => {
+    const productId = el.className.match(/image-data-(\d+)/)[1];
+    productImages[productId] = {
+        images: el.textContent.split(',').map(img => img.trim()),
+        currentIndex: 0
+    };
+});
+
+function changeImage(productId, direction, event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const data = productImages[productId];
+    if (!data) return;
+    
+    data.currentIndex = (data.currentIndex + direction + data.images.length) % data.images.length;
+    
+    const carousel = document.querySelector(`.image-carousel-${productId} img`);
+    const counter = document.querySelector(`.image-counter-${productId}`);
+    
+    if (carousel) {
+        carousel.src = `/static/images/${data.images[data.currentIndex]}`;
+        carousel.classList.add('fade-in');
+        setTimeout(() => carousel.classList.remove('fade-in'), 300);
+    }
+    
+    if (counter) {
+        counter.textContent = data.currentIndex + 1;
+    }
+}
+
+// Event delegation for carousel navigation buttons
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.carousel-nav-btn')) {
+        const btn = e.target.closest('.carousel-nav-btn');
+        const productId = btn.getAttribute('data-product-id');
+        const direction = parseInt(btn.getAttribute('data-direction'));
+        changeImage(productId, direction, e);
+    }
+});
+
+// Add fade animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    .fade-in {
+        animation: fadeIn 0.3s ease-in-out;
+    }
+    @keyframes highlight {
+        0%, 100% {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transform: scale(1);
+        }
+        50% {
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.5);
+            transform: scale(1.02);
+        }
+    }
+    .product-card.highlighted {
+        animation: highlight 2s ease-in-out;
+    }
+`;
+document.head.appendChild(style);
+
+// Set color circle backgrounds using data-color attributes
+document.querySelectorAll('.color-circle, .color-circle-small').forEach(el => {
+    const color = el.getAttribute('data-color');
+    if (color) {
+        el.style.backgroundColor = color;
+    }
+});
+
+// ===== SMOOTH SCROLL TO PRODUCT FUNCTIONALITY =====
+
+/**
+ * Scroll to a specific product by ID and optionally color
+ * Usage: scrollToProduct(productId, color)
+ */
+function scrollToProduct(productId, color) {
+    let selector;
+    if (color) {
+        selector = `#product-${productId}-${color.toLowerCase()}`;
+    } else {
+        selector = `[data-product-id="${productId}"]`;
+    }
+    
+    const element = document.querySelector(selector);
+    
+    if (element) {
+        // Smooth scroll to element
+        element.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'nearest'
+        });
+        
+        // Add highlight animation
+        setTimeout(() => {
+            element.classList.add('highlighted');
+            setTimeout(() => {
+                element.classList.remove('highlighted');
+            }, 2000);
+        }, 500);
+        
+        return true;
+    }
+    
+    return false;
+}
+
+/**
+ * Scroll to color variant of a product
+ * This is useful when clicking color swatches
+ */
+function scrollToColorVariant(productId, color) {
+    console.log(`Scrolling to ${color} variant of product ${productId}`);
+    scrollToProduct(productId, color);
+}
+
+// Check if there's a hash in the URL to auto-scroll on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const hash = window.location.hash;
+    if (hash) {
+        // Format: #product-{id}-{color} or #product-{id}
+        const match = hash.match(/#product-(\d+)(?:-([a-z]+))?/);
+        if (match) {
+            const productId = match[1];
+            const color = match[2];
+            setTimeout(() => {
+                scrollToProduct(productId, color);
+            }, 500);
+        }
+    }
+});
+
+// Make scroll functions globally available
+window.scrollToProduct = scrollToProduct;
+window.scrollToColorVariant = scrollToColorVariant;
+
+// Wishlist functionality for product cards
+function toggleWishlistCard(productId, event) {
+    if (event) {
+        event.stopPropagation();
+    }
+    
+    if (!APP_CONFIG.isUserLoggedIn || !APP_CONFIG.toggleWishlistUrl) {
+        return;
+    }
+    
+    fetch(APP_CONFIG.toggleWishlistUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ product_id: productId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const icon = document.getElementById('wishlistCardIcon-' + productId);
+        const btn = document.getElementById('wishlistCardBtn-' + productId);
+        
+        if (data.status === 'added') {
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+            icon.style.color = '#ef4444';
+            btn.classList.add('bg-red-50');
+            showWishlistToast('Added to wishlist!', 'success');
+        } else {
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+            icon.style.color = '#374151';
+            btn.classList.remove('bg-red-50');
+            showWishlistToast('Removed from wishlist', 'info');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showWishlistToast('Something went wrong', 'error');
+    });
+}
+
+// Product card click handler
+window.addEventListener('DOMContentLoaded', function() {
+    const productCards = document.querySelectorAll('.product-card');
+    productCards.forEach(function(card) {
+        card.addEventListener('click', function() {
+            const url = this.getAttribute('data-product-url');
+            if (url) {
+                window.location.href = url;
+            }
+        });
+    });
+});
+
+// Initialize wishlist functionality
+window.addEventListener('DOMContentLoaded', function() {
+    if (!APP_CONFIG.isUserLoggedIn || !APP_CONFIG.wishlistStatusUrl) {
+        return;
+    }
+    
+    const wishlistButtons = document.querySelectorAll('.wishlist-card-btn');
+    
+    wishlistButtons.forEach(function(btn) {
+        const productId = btn.getAttribute('data-product-id');
+        
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleWishlistCard(productId, e);
+        });
+        
+        fetch(APP_CONFIG.wishlistStatusUrl.replace('/0', '/' + productId))
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.in_wishlist) {
+                    const icon = document.getElementById('wishlistCardIcon-' + productId);
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    icon.style.color = '#ef4444';
+                    btn.classList.add('bg-red-50');
+                }
+            });
+    });
+});
+
+// Toast notification for wishlist
+function showWishlistToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = 'fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white font-semibold z-50 transform transition-all duration-300 translate-y-0';
+    
+    if (type === 'success') {
+        toast.style.backgroundColor = '#10b981';
+    } else if (type === 'error') {
+        toast.style.backgroundColor = '#ef4444';
+    } else {
+        toast.style.backgroundColor = '#6b7280';
+    }
+    
+    toast.innerHTML = '<i class="fas fa-heart mr-2"></i>' + message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.transform = 'translateY(100px)';
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, 2000);
+}
+</script>
+
+{% endblock %}

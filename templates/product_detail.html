@@ -1,0 +1,433 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="container mx-auto px-4">
+        {% if has_variants and variants %}
+        <!-- Product with Variants -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
+                <!-- Left: Image Gallery -->
+                <div class="space-y-4">
+                    <!-- Main Image -->
+                    <div class="relative bg-gray-100 rounded-lg overflow-hidden aspect-square">
+                        <img id="mainImage" 
+                             src="{{ url_for('static', filename='images/' + (variants[0].images[0].path if variants[0].images else 'placeholder.jpg')) }}"
+                             alt="{{ product[1] }}"
+                             class="w-full h-full object-cover transition-opacity duration-300">
+                        
+                        <!-- Image Counter -->
+                        <div class="absolute top-4 right-4 bg-black bg-opacity-60 text-white px-3 py-1 rounded-full text-sm">
+                            <span id="imageCounter">1</span>/<span id="totalImages">{{ variants[0].images|length }}</span>
+                        </div>
+                        
+                        <!-- Navigation Arrows -->
+                        <button onclick="previousImage()" 
+                                class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-3 shadow-lg transition-all hidden" 
+                                id="prevBtn">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                            </svg>
+                        </button>
+                        <button onclick="nextImage()" 
+                                class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-3 shadow-lg transition-all hidden" 
+                                id="nextBtn">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <!-- Thumbnail Gallery -->
+                    <div class="grid grid-cols-4 gap-3" id="thumbnailGallery">
+                        {% for img in variants[0].images %}
+                        <button onclick="changeMainImage({{ loop.index0 }})" 
+                                class="thumbnail-btn aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 border-transparent hover:border-accent transition-all"
+                                data-thumbnail="{{ loop.index0 }}">
+                            <img src="{{ url_for('static', filename='images/' + img.path) }}" 
+                                 alt="{{ img.alt_text }}"
+                                 class="w-full h-full object-cover">
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Right: Product Info -->
+                <div class="space-y-6">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900">{{ product[1] }}</h1>
+                        <p class="text-gray-600 mt-2">{{ product[2] }}</p>
+                    </div>
+                    
+                    <!-- Price -->
+                    <div class="flex items-baseline space-x-4">
+                        <span class="text-4xl font-bold text-gray-900" id="productPrice">₹{{ "%.2f"|format(variants[0].price) }}</span>
+                        <span class="text-lg text-gray-500 line-through" id="originalPrice"></span>
+                    </div>
+                    
+                    <!-- Stock Status -->
+                    <div>
+                        <span class="text-sm font-medium" id="stockStatus">
+                            {% if variants[0].stock > 0 %}
+                            <span class="text-green-600">✓ In Stock ({{ variants[0].stock }} available)</span>
+                            {% else %}
+                            <span class="text-red-600">✗ Out of Stock</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    <!-- Variant Selector -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">
+                            Select {{ variants[0].type|title }}: 
+                            <span class="font-bold text-gray-900" id="selectedVariantName">{{ variants[0].name }}</span>
+                        </label>
+                        <div class="flex flex-wrap gap-3" id="variantSelector">
+                            {% for variant in variants %}
+                            <button onclick="switchVariant({{ variant.id }}, '{{ variant.name }}', {{ variant.price }}, {{ variant.stock }}, {{ variant.images|tojson }})"
+                                    data-variant-id="{{ variant.id }}"
+                                    class="variant-btn px-6 py-3 rounded-lg border-2 transition-all font-medium
+                                           {% if loop.first %}border-accent bg-accent/10 text-accent{% else %}border-gray-300 bg-white text-gray-700 hover:border-gray-400{% endif %}"
+                                    data-variant-name="{{ variant.name }}">
+                                {{ variant.name }}
+                                {% if variant.stock <= 0 %}
+                                <span class="block text-xs text-red-500">Out of Stock</span>
+                                {% endif %}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="border-t pt-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Description</h3>
+                        <p class="text-gray-600 leading-relaxed">{{ product[5] }}</p>
+                    </div>
+                    
+                    <!-- Add to Cart Form -->
+                    <form action="{{ url_for('add_to_cart') }}" method="POST" class="space-y-4" id="addToCartForm">
+                        <input type="hidden" name="product_id" value="{{ product[0] }}">
+                        <input type="hidden" name="variant_id" id="selectedVariantId" value="{{ variants[0].id }}">
+                        
+                        <div class="flex items-center space-x-4">
+                            <label class="text-sm font-medium text-gray-700">Quantity:</label>
+                            <div class="flex items-center border rounded-lg">
+                                <button type="button" onclick="decrementQuantity()" 
+                                        class="px-4 py-2 text-gray-600 hover:bg-gray-100">−</button>
+                                <input type="number" name="quantity" id="quantity" value="1" min="1" 
+                                       class="w-16 text-center border-x py-2 focus:outline-none">
+                                <button type="button" onclick="incrementQuantity()" 
+                                        class="px-4 py-2 text-gray-600 hover:bg-gray-100">+</button>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" 
+                                id="addToCartBtn"
+                                class="w-full gold-gradient hover:shadow-xl transform hover:scale-105 text-white font-semibold py-4 rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
+                            Add to Cart
+                        </button>
+                    </form>
+                    
+                    <!-- Additional Info -->
+                    <div class="border-t pt-6 space-y-3 text-sm text-gray-600">
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span>Free shipping on orders over $50</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            <span>30-day return policy</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
+                            <span>Secure checkout</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% else %}
+        <!-- Product without Variants (Legacy) -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
+                <div>
+                    {% if product[6] %}
+                        {% set images_list = product[6].split(',') %}
+                        <img src="{{ url_for('static', filename='images/' + images_list[0]) }}" 
+                             alt="{{ product[1] }}"
+                             class="w-full h-auto rounded-lg">
+                    {% endif %}
+                </div>
+                <div class="space-y-6">
+                    <h1 class="text-3xl font-bold">{{ product[1] }}</h1>
+                    <p class="text-2xl font-bold text-gray-900">₹{{ "%.2f"|format(product[4]) }}</p>
+                    <p class="text-gray-600">{{ product[5] }}</p>
+                    
+                    <form action="{{ url_for('add_to_cart') }}" method="POST">
+                        <input type="hidden" name="product_id" value="{{ product[0] }}">
+                        <input type="number" name="quantity" value="1" min="1" class="border rounded px-3 py-2">
+                        <button type="submit" class="gold-gradient text-primary font-semibold px-6 py-3 rounded-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">Add to Cart</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Back Button -->
+        <div class="mt-8">
+            <a href="{{ url_for('products') }}" 
+               class="inline-flex items-center text-accent hover:text-gold font-medium">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Products
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+// Variant Data Storage
+let currentVariantIndex = 0;
+let currentImageIndex = 0;
+let variantData = {{ variants|tojson if has_variants else '[]' }};
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    if (variantData.length > 0) {
+        updateNavigationButtons();
+        preloadImages();
+    }
+});
+
+// Switch Variant
+function switchVariant(variantId, variantName, price, stock, images) {
+    console.log('Switching to variant:', variantName);
+    
+    // Find variant index
+    currentVariantIndex = variantData.findIndex(v => v.id === variantId);
+    currentImageIndex = 0;
+    
+    // Update variant data with provided images
+    if (images && images.length > 0) {
+        variantData[currentVariantIndex].images = images;
+    }
+    
+    // Update UI
+    updateVariantSelection(variantId);
+    updatePrice(price);
+    updateStock(stock);
+    updateSelectedVariantName(variantName);
+    updateImages(images || variantData[currentVariantIndex].images);
+    updateHiddenVariantId(variantId);
+    updateAddToCartButton(stock);
+}
+
+// Update Active Variant Button
+function updateVariantSelection(variantId) {
+    document.querySelectorAll('.variant-btn').forEach(btn => {
+        if (btn.dataset.variantId == variantId) {
+            btn.classList.remove('border-gray-300', 'bg-white', 'text-gray-700');
+            btn.classList.add('border-accent', 'bg-accent/10', 'text-accent');
+        } else {
+            btn.classList.remove('border-accent', 'bg-accent/10', 'text-accent');
+            btn.classList.add('border-gray-300', 'bg-white', 'text-gray-700');
+        }
+    });
+}
+
+// Update Price
+function updatePrice(price) {
+    const priceElement = document.getElementById('productPrice');
+    priceElement.style.opacity = '0';
+    setTimeout(() => {
+        priceElement.textContent = '$' + parseFloat(price).toFixed(2);
+        priceElement.style.opacity = '1';
+    }, 150);
+}
+
+// Update Stock
+function updateStock(stock) {
+    const stockElement = document.getElementById('stockStatus');
+    if (stock > 0) {
+        stockElement.innerHTML = `<span class="text-green-600">✓ In Stock (${stock} available)</span>`;
+    } else {
+        stockElement.innerHTML = `<span class="text-red-600">✗ Out of Stock</span>`;
+    }
+}
+
+// Update Selected Variant Name
+function updateSelectedVariantName(name) {
+    document.getElementById('selectedVariantName').textContent = name;
+}
+
+// Update Images with Fade Effect
+function updateImages(images) {
+    const mainImg = document.getElementById('mainImage');
+    const counter = document.getElementById('imageCounter');
+    const total = document.getElementById('totalImages');
+    const thumbnailGallery = document.getElementById('thumbnailGallery');
+    
+    // Fade out
+    mainImg.style.opacity = '0';
+    
+    setTimeout(() => {
+        if (images && images.length > 0) {
+            mainImg.src = '/static/images/' + images[0].path;
+            counter.textContent = '1';
+            total.textContent = images.length;
+            
+            // Update thumbnails
+            thumbnailGallery.innerHTML = '';
+            images.forEach((img, index) => {
+                const btn = document.createElement('button');
+                btn.onclick = () => changeMainImage(index);
+                btn.className = 'thumbnail-btn aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 border-transparent hover:border-accent transition-all';
+                btn.dataset.thumbnail = index;
+                btn.innerHTML = `<img src="/static/images/${img.path}" alt="${img.alt_text || ''}" class="w-full h-full object-cover">`;
+                thumbnailGallery.appendChild(btn);
+            });
+        }
+        
+        // Fade in
+        mainImg.style.opacity = '1';
+        updateNavigationButtons();
+    }, 150);
+}
+
+// Change Main Image
+function changeMainImage(index) {
+    if (!variantData[currentVariantIndex] || !variantData[currentVariantIndex].images) return;
+    
+    const images = variantData[currentVariantIndex].images;
+    if (index < 0 || index >= images.length) return;
+    
+    currentImageIndex = index;
+    const mainImg = document.getElementById('mainImage');
+    const counter = document.getElementById('imageCounter');
+    
+    mainImg.style.opacity = '0';
+    setTimeout(() => {
+        mainImg.src = '/static/images/' + images[index].path;
+        counter.textContent = index + 1;
+        mainImg.style.opacity = '1';
+        updateThumbnailSelection(index);
+    }, 150);
+}
+
+// Update Thumbnail Selection
+function updateThumbnailSelection(index) {
+    document.querySelectorAll('.thumbnail-btn').forEach((btn, i) => {
+        if (i === index) {
+            btn.classList.add('border-accent');
+        } else {
+            btn.classList.remove('border-accent');
+        }
+    });
+}
+
+// Navigation
+function previousImage() {
+    if (currentImageIndex > 0) {
+        changeMainImage(currentImageIndex - 1);
+    }
+}
+
+function nextImage() {
+    const images = variantData[currentVariantIndex]?.images || [];
+    if (currentImageIndex < images.length - 1) {
+        changeMainImage(currentImageIndex + 1);
+    }
+}
+
+// Update Navigation Buttons
+function updateNavigationButtons() {
+    const images = variantData[currentVariantIndex]?.images || [];
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    
+    if (images.length > 1) {
+        prevBtn.classList.remove('hidden');
+        nextBtn.classList.remove('hidden');
+    } else {
+        prevBtn.classList.add('hidden');
+        nextBtn.classList.add('hidden');
+    }
+}
+
+// Update Hidden Variant ID
+function updateHiddenVariantId(variantId) {
+    document.getElementById('selectedVariantId').value = variantId;
+}
+
+// Update Add to Cart Button
+function updateAddToCartButton(stock) {
+    const btn = document.getElementById('addToCartBtn');
+    if (stock > 0) {
+        btn.disabled = false;
+        btn.textContent = 'Add to Cart';
+    } else {
+        btn.disabled = true;
+        btn.textContent = 'Out of Stock';
+    }
+}
+
+// Quantity Controls
+function incrementQuantity() {
+    const input = document.getElementById('quantity');
+    input.value = parseInt(input.value) + 1;
+}
+
+function decrementQuantity() {
+    const input = document.getElementById('quantity');
+    if (parseInt(input.value) > 1) {
+        input.value = parseInt(input.value) - 1;
+    }
+}
+
+// Preload Images
+function preloadImages() {
+    variantData.forEach(variant => {
+        variant.images.forEach(img => {
+            const image = new Image();
+            image.src = '/static/images/' + img.path;
+        });
+    });
+}
+
+// Keyboard Navigation
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowLeft') {
+        previousImage();
+    } else if (e.key === 'ArrowRight') {
+        nextImage();
+    }
+});
+
+// Add smooth transitions
+document.getElementById('mainImage').style.transition = 'opacity 300ms ease-in-out';
+</script>
+
+<style>
+.thumbnail-btn.border-accent {
+    border-color: #3B82F6 !important;
+}
+
+#productPrice {
+    transition: opacity 150ms ease-in-out;
+}
+
+#mainImage {
+    transition: opacity 300ms ease-in-out;
+}
+</style>
+
+{% endblock %}
+

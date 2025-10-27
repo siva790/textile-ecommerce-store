@@ -1,0 +1,733 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel - Textile Store{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex justify-between items-center mb-8">
+        <h2 class="text-3xl font-bold text-gray-900">
+            <i class="fas fa-cog mr-2 text-primary"></i>Admin Panel
+        </h2>
+        <div class="flex gap-3 flex-wrap">
+            <a href="{{ url_for('admin_analytics') }}" class="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all shadow-lg flex items-center">
+                <i class="fas fa-chart-line mr-2"></i>Sales Analytics
+            </a>
+            <a href="{{ url_for('admin_orders') }}" class="bg-success text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors flex items-center">
+                <i class="fas fa-shopping-cart mr-2"></i>Manage Orders
+            </a>
+            <button onclick="document.getElementById('addProductModal').classList.remove('hidden')" 
+                    class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-secondary transition-colors flex items-center">
+                <i class="fas fa-plus mr-2"></i>Add Product
+            </button>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h5 class="text-xl font-semibold">Product Management</h5>
+                <div id="productCount" class="text-sm text-gray-600">
+                    Showing <span id="visibleCount">{{ products|length }}</span> of {{ products|length }} products
+                </div>
+            </div>
+            
+            <!-- Gender Filter Tabs -->
+            <div class="flex gap-2 mb-6 flex-wrap">
+                <button onclick="filterByGender('All')" 
+                        class="gender-filter-btn active px-6 py-2 rounded-lg font-semibold transition-all duration-300 bg-gray-900 text-white"
+                        data-gender="All">
+                    <i class="fas fa-th mr-2"></i>All Products
+                </button>
+                <button onclick="filterByGender('Men')" 
+                        class="gender-filter-btn px-6 py-2 rounded-lg font-semibold transition-all duration-300 bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        data-gender="Men">
+                    <i class="fas fa-male mr-2"></i>Men
+                </button>
+                <button onclick="filterByGender('Women')" 
+                        class="gender-filter-btn px-6 py-2 rounded-lg font-semibold transition-all duration-300 bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        data-gender="Women">
+                    <i class="fas fa-female mr-2"></i>Women
+                </button>
+                <button onclick="filterByGender('Boys')" 
+                        class="gender-filter-btn px-6 py-2 rounded-lg font-semibold transition-all duration-300 bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        data-gender="Boys">
+                    <i class="fas fa-child mr-2"></i>Boys
+                </button>
+                <button onclick="filterByGender('Girls')" 
+                        class="gender-filter-btn px-6 py-2 rounded-lg font-semibold transition-all duration-300 bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        data-gender="Girls">
+                    <i class="fas fa-child mr-2"></i>Girls
+                </button>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full" id="productsTable">
+                    <thead class="bg-gray-800 text-white">
+                        <tr>
+                            <th class="px-4 py-3 text-left">ID</th>
+                            <th class="px-4 py-3 text-left">Images</th>
+                            <th class="px-4 py-3 text-left">Name</th>
+                            <th class="px-4 py-3 text-left">Category</th>
+                            <th class="px-4 py-3 text-left">Gender</th>
+                            <th class="px-4 py-3 text-left">Price</th>
+                            <th class="px-4 py-3 text-left">Stock</th>
+                            <th class="px-4 py-3 text-left">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for product in products %}
+                        <tr class="hover:bg-gray-50 product-row" data-gender="{{ product[10] or 'N/A' }}">
+                            <td class="px-4 py-3">{{ product[0] }}</td>
+                            <td class="px-4 py-3">
+                                {% set images = product[6].split(',') if product[6] else ['tshirt.jpg'] %}
+                                <a href="{{ url_for('amazon_product_page', product_id=product[0]) }}" 
+                                   title="Click to view product details" 
+                                   class="flex gap-1 hover:opacity-80 transition-opacity">
+                                    {% for img in images[:3] %}
+                                    <img src="{{ url_for('static', filename='images/' + img) }}" 
+                                         alt="{{ product[1] }}" 
+                                         class="w-10 h-10 object-cover rounded cursor-pointer hover:scale-110 transition-transform">
+                                    {% endfor %}
+                                    {% if images|length > 3 %}
+                                    <span class="text-xs text-gray-500">+{{ images|length - 3 }}</span>
+                                    {% endif %}
+                                </a>
+                            </td>
+                            <td class="px-4 py-3 font-semibold">{{ product[1] }}</td>
+                            <td class="px-4 py-3">
+                                <span class="bg-gray-200 text-gray-800 px-2 py-1 rounded text-sm">{{ product[2] }}</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="bg-primary text-white px-2 py-1 rounded text-sm">{{ product[10] or 'N/A' }}</span>
+                            </td>
+                            <td class="px-4 py-3 font-semibold">₹{{ "%.2f"|format(product[4]) }}</td>
+                            <td class="px-4 py-3">{{ product[7] }}</td>
+                            <td class="px-4 py-3">
+                                <button type="button"
+                                        class="edit-product-btn bg-primary text-white px-3 py-1 rounded hover:bg-secondary transition-colors mr-2"
+                                        data-id="{{ product[0] }}"
+                                        data-name="{{ product[1] }}"
+                                        data-category="{{ product[2] }}"
+                                        data-subcategory="{{ product[3] or '' }}"
+                                        data-price="{{ product[4] }}"
+                                        data-description="{{ product[5] }}"
+                                        data-images="{{ product[6] }}"
+                                        data-stock="{{ product[7] }}"
+                                        data-sizes="{{ product[8] or '' }}"
+                                        data-colors="{{ product[9] or '' }}"
+                                        data-gender="{{ product[10] or '' }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <form method="POST" action="{{ url_for('delete_product') }}" class="inline delete-form">
+                                    <input type="hidden" name="product_id" value="{{ product[0] }}">
+                                    <button type="submit" class="bg-danger text-white px-3 py-1 rounded hover:bg-red-600 transition-colors">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Product Modal -->
+<div id="addProductModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-lg bg-white">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-2xl font-bold text-gray-900">Add New Product</h3>
+            <button onclick="document.getElementById('addProductModal').classList.add('hidden')" 
+                    class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+        </div>
+        <form method="POST" action="{{ url_for('add_product') }}" id="addProductForm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
+                    <input type="text" name="name" required 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                    <select name="gender" id="addGender" required 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                            onchange="updateCategoryOptions('add')">
+                        <option value="">Select Gender</option>
+                        <option value="Men">Men</option>
+                        <option value="Women">Women</option>
+                        <option value="Boys">Boys</option>
+                        <option value="Girls">Girls</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                    <select name="category" id="addCategory" required 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary">
+                        <option value="">Select Gender First</option>
+                    </select>
+                    <small class="text-gray-500">Choose gender first to see categories</small>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Subcategory (Optional)</label>
+                    <input type="text" name="subcategory" placeholder="e.g., Casual, Formal, Party" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Price ($)</label>
+                    <input type="number" name="price" step="0.01" required 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Stock</label>
+                    <input type="number" name="stock" required 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Available Sizes (comma-separated)</label>
+                    <input type="text" name="sizes" placeholder="S,M,L,XL or 6-7Y,8-9Y" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary">
+                    <small class="text-gray-500">Example: S,M,L,XL or 4-5Y,6-7Y,8-9Y</small>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Available Colors (comma-separated)</label>
+                    <input type="text" name="colors" placeholder="Red,Black,White,Gold" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent">
+                    <small class="text-gray-500">Example: Red,Black,White,Gold</small>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <textarea name="description" rows="3" required 
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"></textarea>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Product Images</label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                        <input type="file" id="addImageUpload" accept="image/*" multiple class="hidden">
+                        <button type="button" onclick="document.getElementById('addImageUpload').click()" 
+                                class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-3 rounded-lg transition-colors flex items-center justify-center">
+                            <i class="fas fa-cloud-upload-alt mr-2"></i>Click to Upload Images
+                        </button>
+                        <p class="text-xs text-gray-500 mt-2 text-center">PNG, JPG, JPEG, GIF, WEBP (Max 16MB each)</p>
+                        <div id="addImagePreview" class="mt-4 grid grid-cols-4 gap-2"></div>
+                    </div>
+                    <input type="hidden" name="images" id="addImagesInput" value="tshirt.jpg">
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" onclick="document.getElementById('addProductModal').classList.add('hidden')" 
+                        class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100">
+                    Cancel
+                </button>
+                <button type="submit" 
+                        class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-secondary">
+                    Add Product
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Product Modal -->
+<div id="editProductModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-lg bg-white">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-2xl font-bold text-gray-900">Edit Product</h3>
+            <button onclick="document.getElementById('editProductModal').classList.add('hidden')" 
+                    class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+        </div>
+        <form method="POST" action="{{ url_for('edit_product') }}" id="editProductForm">
+            <input type="hidden" id="edit_product_id" name="product_id">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
+                    <input type="text" id="edit_name" name="name" required 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                    <select id="editGender" name="gender" required 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                            onchange="updateCategoryOptions('edit')">
+                        <option value="Men">Men</option>
+                        <option value="Women">Women</option>
+                        <option value="Boys">Boys</option>
+                        <option value="Girls">Girls</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                    <select id="editCategory" name="category" required 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary">
+                        <option value="">Select Category</option>
+                    </select>
+                    <small class="text-gray-500">Categories based on selected gender</small>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Subcategory (Optional)</label>
+                    <input type="text" id="edit_subcategory" name="subcategory" placeholder="e.g., Casual, Formal" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Price (₹)</label>
+                    <input type="number" id="edit_price" name="price" step="0.01" required 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Stock</label>
+                    <input type="number" id="edit_stock" name="stock" required 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Available Sizes</label>
+                    <input type="text" id="edit_sizes" name="sizes" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Available Colors</label>
+                    <input type="text" id="edit_colors" name="colors" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <textarea id="edit_description" name="description" rows="3" required 
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"></textarea>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Product Images</label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                        <input type="file" id="editImageUpload" accept="image/*" multiple class="hidden">
+                        <button type="button" onclick="document.getElementById('editImageUpload').click()" 
+                                class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-3 rounded-lg transition-colors flex items-center justify-center">
+                            <i class="fas fa-cloud-upload-alt mr-2"></i>Click to Upload Images
+                        </button>
+                        <p class="text-xs text-gray-500 mt-2 text-center">PNG, JPG, JPEG, GIF, WEBP (Max 16MB each)</p>
+                        <div id="editImagePreview" class="mt-4 grid grid-cols-4 gap-2"></div>
+                    </div>
+                    <input type="hidden" name="images" id="editImagesInput">
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" onclick="document.getElementById('editProductModal').classList.add('hidden')" 
+                        class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100">
+                    Cancel
+                </button>
+                <button type="submit" 
+                        class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-secondary">
+                    Update Product
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Image upload arrays
+let addImages = [];
+let editImages = [];
+
+// Handle Add Product Image Upload
+document.getElementById('addImageUpload').addEventListener('change', async function(e) {
+    console.log('Add image upload triggered');
+    const files = Array.from(e.target.files);
+    const preview = document.getElementById('addImagePreview');
+    
+    if (files.length === 0) {
+        console.log('No files selected');
+        return;
+    }
+    
+    console.log(`Uploading ${files.length} files...`);
+    
+    for (const file of files) {
+        console.log(`Processing file: ${file.name}, size: ${file.size} bytes`);
+        
+        if (file.size > 16 * 1024 * 1024) {
+            alert(`File ${file.name} is too large. Max size is 16MB.`);
+            continue;
+        }
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        try {
+            console.log('Sending upload request...');
+            const response = await fetch('{{ url_for("upload_image") }}', {
+                method: 'POST',
+                body: formData
+            });
+            
+            console.log('Response status:', response.status);
+            const result = await response.json();
+            console.log('Response data:', result);
+            
+            if (result.success) {
+                addImages.push(result.filename);
+                displayImagePreview(result.filename, preview, 'add');
+                updateImagesInput('add');
+                console.log(`Successfully uploaded: ${result.filename}`);
+            } else {
+                console.error('Upload error:', result.error);
+                alert(`Error uploading ${file.name}: ${result.error}`);
+            }
+        } catch (error) {
+            console.error('Upload exception:', error);
+            alert(`Error uploading ${file.name}: ${error.message}`);
+        }
+    }
+    
+    // Reset input so same file can be uploaded again
+    e.target.value = '';
+});
+
+// Handle Edit Product Image Upload
+document.getElementById('editImageUpload').addEventListener('change', async function(e) {
+    console.log('Edit image upload triggered');
+    const files = Array.from(e.target.files);
+    const preview = document.getElementById('editImagePreview');
+    
+    if (files.length === 0) {
+        console.log('No files selected');
+        return;
+    }
+    
+    console.log(`Uploading ${files.length} files...`);
+    
+    for (const file of files) {
+        console.log(`Processing file: ${file.name}, size: ${file.size} bytes`);
+        
+        if (file.size > 16 * 1024 * 1024) {
+            alert(`File ${file.name} is too large. Max size is 16MB.`);
+            continue;
+        }
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        try {
+            console.log('Sending upload request...');
+            const response = await fetch('{{ url_for("upload_image") }}', {
+                method: 'POST',
+                body: formData
+            });
+            
+            console.log('Response status:', response.status);
+            const result = await response.json();
+            console.log('Response data:', result);
+            
+            if (result.success) {
+                editImages.push(result.filename);
+                displayImagePreview(result.filename, preview, 'edit');
+                updateImagesInput('edit');
+                console.log(`Successfully uploaded: ${result.filename}`);
+            } else {
+                console.error('Upload error:', result.error);
+                alert(`Error uploading ${file.name}: ${result.error}`);
+            }
+        } catch (error) {
+            console.error('Upload exception:', error);
+            alert(`Error uploading ${file.name}: ${error.message}`);
+        }
+    }
+    
+    // Reset input so same file can be uploaded again
+    e.target.value = '';
+});
+
+function displayImagePreview(filename, container, type) {
+    const div = document.createElement('div');
+    div.className = 'relative group';
+    div.innerHTML = `
+        <img src="/static/images/${filename}" class="w-full h-24 object-cover rounded border-2 border-gray-300">
+        <button type="button" onclick="removeImage('${filename}', '${type}')" 
+                class="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full w-7 h-7 flex items-center justify-center shadow-lg transition-all hover:scale-110"
+                title="Delete ${filename}">
+            <i class="fas fa-times text-sm"></i>
+        </button>
+    `;
+    container.appendChild(div);
+}
+
+async function removeImage(filename, type) {
+    // Confirm deletion
+    if (!confirm(`Are you sure you want to delete ${filename}?`)) {
+        return;
+    }
+    
+    // Delete file from server
+    try {
+        const response = await fetch('/admin/delete_image', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ filename: filename })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            console.log('Image deleted from server:', filename);
+        } else {
+            console.error('Failed to delete image from server:', result.error);
+            alert('Warning: Could not delete file from server. It will be removed from product.');
+        }
+    } catch (error) {
+        console.error('Error deleting image:', error);
+        alert('Warning: Could not delete file from server. It will be removed from product.');
+    }
+    
+    // Remove from preview and array
+    if (type === 'add') {
+        addImages = addImages.filter(img => img !== filename);
+        updateImagesInput('add');
+        document.getElementById('addImagePreview').innerHTML = '';
+        addImages.forEach(img => displayImagePreview(img, document.getElementById('addImagePreview'), 'add'));
+    } else {
+        editImages = editImages.filter(img => img !== filename);
+        updateImagesInput('edit');
+        document.getElementById('editImagePreview').innerHTML = '';
+        editImages.forEach(img => displayImagePreview(img, document.getElementById('editImagePreview'), 'edit'));
+    }
+}
+
+function updateImagesInput(type) {
+    if (type === 'add') {
+        document.getElementById('addImagesInput').value = addImages.length > 0 ? addImages.join(',') : 'tshirt.jpg';
+    } else {
+        document.getElementById('editImagesInput').value = editImages.join(',');
+    }
+}
+
+function editProduct(id, name, category, subcategory, price, description, images, stock, sizes, colors, gender) {
+    try {
+        // Populate form
+        document.getElementById('edit_product_id').value = id;
+        document.getElementById('edit_name').value = name;
+        document.getElementById('edit_subcategory').value = subcategory || '';
+        document.getElementById('edit_price').value = price;
+        document.getElementById('edit_description').value = description;
+        document.getElementById('edit_stock').value = stock;
+        document.getElementById('edit_sizes').value = sizes || '';
+        document.getElementById('edit_colors').value = colors || '';
+        document.getElementById('editGender').value = gender || '';
+        
+        // Update categories based on gender, then set the category
+        updateCategoryOptions('edit');
+        // Small delay to ensure options are populated
+        setTimeout(function() {
+            document.getElementById('editCategory').value = category;
+        }, 10);
+        
+        // Handle images
+        editImages = images ? images.split(',') : [];
+        document.getElementById('editImagesInput').value = images;
+        
+        // Display existing images
+        const preview = document.getElementById('editImagePreview');
+        preview.innerHTML = '';
+        editImages.forEach(img => displayImagePreview(img.trim(), preview, 'edit'));
+        
+        // Show modal
+        document.getElementById('editProductModal').classList.remove('hidden');
+    } catch (error) {
+        console.error('Error opening edit form:', error);
+        alert('Error opening edit form. Please check the console for details.');
+    }
+}
+
+// Close modals when clicking outside
+window.onclick = function(event) {
+    const addModal = document.getElementById('addProductModal');
+    const editModal = document.getElementById('editProductModal');
+    if (event.target === addModal) {
+        addModal.classList.add('hidden');
+        addImages = [];
+        document.getElementById('addImagePreview').innerHTML = '';
+    }
+    if (event.target === editModal) {
+        editModal.classList.add('hidden');
+    }
+}
+
+// Gender Filter Function
+function filterByGender(gender) {
+    // Save the active filter to localStorage
+    localStorage.setItem('adminGenderFilter', gender);
+    
+    // Update active button styling
+    const buttons = document.querySelectorAll('.gender-filter-btn');
+    buttons.forEach(btn => {
+        if (btn.getAttribute('data-gender') === gender) {
+            btn.classList.remove('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
+            btn.classList.add('bg-gray-900', 'text-white', 'active');
+        } else {
+            btn.classList.remove('bg-gray-900', 'text-white', 'active');
+            btn.classList.add('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
+        }
+    });
+    
+    // Filter table rows
+    const rows = document.querySelectorAll('.product-row');
+    let visibleCount = 0;
+    
+    rows.forEach(row => {
+        const rowGender = row.getAttribute('data-gender');
+        
+        if (gender === 'All') {
+            row.style.display = '';
+            visibleCount++;
+        } else if (rowGender === gender) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+    
+    // Update product count
+    document.getElementById('visibleCount').textContent = visibleCount;
+}
+
+// Initialize edit button event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Edit product buttons
+    const editButtons = document.querySelectorAll('.edit-product-btn');
+    editButtons.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const name = this.getAttribute('data-name');
+            const category = this.getAttribute('data-category');
+            const subcategory = this.getAttribute('data-subcategory');
+            const price = this.getAttribute('data-price');
+            const description = this.getAttribute('data-description');
+            const images = this.getAttribute('data-images');
+            const stock = this.getAttribute('data-stock');
+            const sizes = this.getAttribute('data-sizes');
+            const colors = this.getAttribute('data-colors');
+            const gender = this.getAttribute('data-gender');
+            
+            editProduct(id, name, category, subcategory, price, description, images, stock, sizes, colors, gender);
+        });
+    });
+    
+    // Delete product confirmation
+    const deleteForms = document.querySelectorAll('.delete-form');
+    deleteForms.forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            if (!confirm('Delete this product?')) {
+                e.preventDefault();
+            }
+        });
+    });
+    
+    // Restore the last active gender filter from localStorage
+    const savedFilter = localStorage.getItem('adminGenderFilter');
+    if (savedFilter && savedFilter !== 'All') {
+        filterByGender(savedFilter);
+    }
+});
+
+// Category options based on gender
+const categoryOptions = {
+    'Men': [
+        'T-Shirts',
+        'Shirts',
+        'Formal Shirts',
+        'Polos',
+        'Sweatshirts',
+        'Sweaters',
+        'Jackets',
+        'Blazers',
+        'Jeans',
+        'Trousers',
+        'Shorts',
+        'Track Pants',
+        'Kurtas',
+        'Sherwanis',
+        'Ethnic Wear',
+        'Activewear',
+        'Sports Shoes',
+        'Gym Wear',
+        'Watches',
+        'Belts'
+    ],
+    'Women': [
+        'Kurtas',
+        'Kurtis',
+        'Sarees',
+        'Ethnic Wear',
+        'Leggings',
+        'Skirts',
+        'Dress Materials',
+        'Lehenga',
+        'Dupattas',
+        'Dresses',
+        'Tops',
+        'Tshirts',
+        'Jeans',
+        'Trousers',
+        'Shorts',
+        'Co-ords',
+        'Playsuits',
+        'Jumpsuits',
+        'Shrugs',
+        'Sweaters',
+        'Coats',
+        'Blazers',
+        'Jackets',
+        'Belts',
+        'Watches',
+        'Plus Size'
+    ],
+    'Boys': [
+        'T-Shirts',
+        'Shirts',
+        'Jeans',
+        'Shorts',
+        'Ethnic Wear',
+        'Kurtas',
+        'Party Wear',
+        'Winter Wear',
+        'Toys',
+        'Accessories'
+    ],
+    'Girls': [
+        'Dresses',
+        'Tops',
+        'Jeans',
+        'Skirts',
+        'Ethnic Wear',
+        'Lehenga',
+        'Party Wear',
+        'Winter Wear',
+        'Accessories'
+    ]
+};
+
+// Update category options based on gender
+function updateCategoryOptions(formType) {
+    const genderSelect = document.getElementById(formType + 'Gender');
+    const categorySelect = document.getElementById(formType + 'Category');
+    const selectedGender = genderSelect.value;
+    
+    // Clear existing options
+    categorySelect.innerHTML = '<option value="">Select Category</option>';
+    
+    // Add gender-specific categories
+    if (selectedGender && categoryOptions[selectedGender]) {
+        categoryOptions[selectedGender].forEach(function(category) {
+            const option = document.createElement('option');
+            option.value = category;
+            option.textContent = category;
+            categorySelect.appendChild(option);
+        });
+    }
+}
+</script>
+{% endblock %}
