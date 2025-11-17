@@ -2253,24 +2253,25 @@ def admin_order_details(order_id):
     
     return render_template('admin_order_details.html', order=order, items=items)
 
-# Initialize database and run app
+# Initialize database when app starts (important for Render deployment)
+init_db()
+
+# Add admin user if not exists
+conn = sqlite3.connect('database.db')
+cursor = conn.cursor()
+
+# Add admin user if not exists
+cursor.execute('SELECT COUNT(*) FROM users WHERE email = ?', ('admin@textile.com',))
+if cursor.fetchone()[0] == 0:
+    admin_password = generate_password_hash('admin123')
+    cursor.execute('''
+        INSERT INTO users (name, email, password, is_admin)
+        VALUES (?, ?, ?, ?)
+    ''', ('Admin', 'admin@textile.com', admin_password, True))
+
+conn.commit()
+conn.close()
+
+# Run app when called directly
 if __name__ == '__main__':
-    init_db()
-    
-    # Sample products disabled - add your own products through the admin panel
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    
-    # Add admin user if not exists
-    cursor.execute('SELECT COUNT(*) FROM users WHERE email = ?', ('admin@textile.com',))
-    if cursor.fetchone()[0] == 0:
-        admin_password = generate_password_hash('admin123')
-        cursor.execute('''
-            INSERT INTO users (name, email, password, is_admin)
-            VALUES (?, ?, ?, ?)
-        ''', ('Admin', 'admin@textile.com', admin_password, True))
-    
-    conn.commit()
-    conn.close()
-    
     app.run(debug=True)
