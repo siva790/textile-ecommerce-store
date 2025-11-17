@@ -1,3 +1,0 @@
-# Ignore template files with Jinja2 syntax
-templates/**/*.html
-
